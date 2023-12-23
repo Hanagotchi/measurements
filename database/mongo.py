@@ -32,7 +32,9 @@ class Mongo(Database):
         })
 
     def find_in_device_plant(self, id_device):
-        return self.db["device_plant"].find_one({"_id": {"$eq": id_device}})
+        result = self.db["device_plant"].find_one({"_id": {"$eq": id_device}})
+        result["id_device"] = result.pop("_id")
+        return result
     
     def clean_device_plant(self):
         self.db["device_plant"].delete_many({})

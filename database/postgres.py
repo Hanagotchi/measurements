@@ -34,10 +34,15 @@ class Postgres(Database):
         find_query = """SELECT * FROM dev.device_plant 
                             WHERE id_device = %s"""
         cursor.execute(find_query, (id_device,))
-        result = cursor.fetchall()
+        result = cursor.fetchone()
 
         cursor.close()
-        return result
+        return {
+            "id_device": result[0],
+            "id_plant": result[1],
+            "plant_type": result[2],
+            "id_user": result[3],
+        }
     
     def clean_device_plant(self):
         cursor = self.conn.cursor()
