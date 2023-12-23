@@ -1,15 +1,19 @@
--- SQLBook: Code
-CREATE SCHEMA IF NOT EXISTS my_scheme;
+CREATE SCHEMA IF NOT EXISTS dev;
 
-CREATE TABLE IF NOT EXISTS my_scheme.usuarios(
-    id SERIAL PRIMARY KEY,
-    nombre VARCHAR(50),
-    email VARCHAR(100)
+CREATE TABLE IF NOT EXISTS dev.device_plant (
+    id_device VARCHAR(32) PRIMARY KEY,
+    id_plant INT UNIQUE NOT NULL,
+    plant_type SMALLINT NOT NULL,
+    id_user INT NOT NULL
 );
 
--- Para probar :D
--- INSERT INTO my_scheme.usuarios (nombre, email) VALUES
---     ('Juan', 'juan@example.com'),
---     ('María', 'maria@example.com');
-
--- SELECT * FROM my_scheme.usuarios;
+CREATE TABLE IF NOT EXISTS dev.measurements (
+    id SERIAL PRIMARY KEY,
+    id_plant INT,
+    plant_type SMALLINT,
+    time_stamp VARCHAR(50),
+    temperature SMALLINT,
+    humidity SMALLINT,
+    light SMALLINT,
+    watering SMALLINT
+);
