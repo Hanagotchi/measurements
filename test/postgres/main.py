@@ -1,7 +1,6 @@
 import os
 from dotenv import load_dotenv
 import psycopg2 as pg
-import sys
 
 load_dotenv()
 
