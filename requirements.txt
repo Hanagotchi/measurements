@@ -1,2 +1,7 @@
+python-dotenv
+
 ### RabbitMQ ###
 pika
+
+### PostgreSQL ###
+psycopg2-binary
