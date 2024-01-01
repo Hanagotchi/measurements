@@ -4,7 +4,8 @@ python-dotenv
 pika
 
 ### PostgreSQL ###
-psycopg2-binary
+psycopg2
+SQLAlchemy
 
 ### MongoDB ###
 pymongo
