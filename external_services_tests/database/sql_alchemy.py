@@ -1,5 +1,5 @@
-from sqlalchemy import CheckConstraint, create_engine, Integer, String, SmallInteger
-from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase
+from sqlalchemy import CheckConstraint, create_engine, Integer, String, SmallInteger, select, delete
+from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase, Session
 from database import Database
 from dotenv import load_dotenv
 from os import environ
@@ -46,7 +46,7 @@ class Measurement(Base):
         return f"Measurement(id={self.id!r}, id_plant={self.id_plant!r}, plant_type={self.plant_type!r}, timestamp={self.timestamp!r}, temperature={self.temperature!r}, humidity={self.humidity!r}, light={self.light!r}, watering={self.watering!r})"
 
 
-class SQL_Alchemy:
+class SQL_Alchemy(Database):
 
     def __init__(self):
 
@@ -57,3 +57,31 @@ class SQL_Alchemy:
 
     def shutdown(self):
         self.conn.close()
+
+    def insert_into_device_plant(self, id_device: str, id_plant: int, plant_type: int, id_user: int):
+        
+        device_plant = DevicePlant(
+            id_device=id_device,
+            id_plant=id_plant,
+            plant_type=plant_type,
+            id_user=id_user,
+        )
+
+        with Session(self.engine) as session:
+            session.add(device_plant)
+            session.commit()
+
+    def find_in_device_plant(self, id_device: str) -> DevicePlant:
+
+        query = select(DevicePlant).where(DevicePlant.id_device == id_device)
+
+        with Session(self.engine) as session:
+            result = session.scalars(query).one()
+        
+        return result
+    
+    def clean_device_plant(self):
+        with Session(self.engine) as session:
+            query = delete(DevicePlant)
+            session.execute(query)
+            session.commit()
