@@ -53,7 +53,9 @@ class SQL_Alchemy():
         db_url = f'postgresql://{environ["POSTGRES_USER"]}:{environ["POSTGRES_PASSWORD"]}@{environ["POSTGRES_HOST"]}:{environ["POSTGRES_PORT"]}/{environ["POSTGRES_DB"]}'
         self.engine = create_engine(db_url)
         self.conn = self.engine.connect()
-        Base.metadata.create_all(self.engine)
+
+        # If the schema wasn't created 
+        # Base.metadata.create_all(self.engine)
 
     def shutdown(self):
         self.conn.close()
