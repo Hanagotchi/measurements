@@ -1,6 +1,5 @@
-from sqlalchemy import CheckConstraint, create_engine, Integer, String, SmallInteger, select, delete, update
+from sqlalchemy import CheckConstraint, create_engine, Integer, String, SmallInteger, select, delete
 from sqlalchemy.orm import Mapped, mapped_column, DeclarativeBase, Session
-from database import Database
 from dotenv import load_dotenv
 from os import environ
 from typing import Optional, Union
