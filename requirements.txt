@@ -1,0 +1,11 @@
+python-dotenv
+
+### RabbitMQ ###
+pika
+
+### PostgreSQL ###
+psycopg2
+SQLAlchemy
+
+### MongoDB ###
+pymongo
