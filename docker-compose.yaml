@@ -1,9 +1,37 @@
 version: '3.9'
 name: measurements
+
 services:
+
   python:
     build:
       context: .
     container_name: app
+    environment:
+      - DATABASE_URL=postgresql://testuser:test1234@sql:5432/measurements
+      - RABBITMQ_HOST=rabbitmq
     ports:
       - "8080:8080"
+    depends_on:
+      - sql
+
+  rabbitmq:
+    build:
+      context: ./app/service/rabbitmq
+      dockerfile: Dockerfile
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
+  sql:
+    build:
+      context: ./app/service/sql
+      dockerfile: Dockerfile
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: measurements
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./app/service/sql:/docker-entrypoint-initdb.d
