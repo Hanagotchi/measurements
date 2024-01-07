@@ -5,7 +5,7 @@ services:
     build:
       context: .
     container_name: app
-    envfile:
+    env_file:
       - .env
     ports:
       - "8080:8080"
