@@ -8,7 +8,7 @@ import os
 import json
 
 # TODO: agregar healthcheks en el docker compose
-time.sleep(15)
+time.sleep(17)
 middleware = Middleware()
 Base = declarative_base(metadata=MetaData(schema='dev'))
 

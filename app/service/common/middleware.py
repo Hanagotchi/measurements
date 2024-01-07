@@ -5,7 +5,6 @@ import os
 class Middleware:
 
     def __init__(self):
-        print(f"Host: {os.environ.get('RABBITMQ_HOST')}")
         self._connection = (pika.BlockingConnection
                             (pika.ConnectionParameters(host=os.environ.get
                                                        ("RABBITMQ_HOST"))))
