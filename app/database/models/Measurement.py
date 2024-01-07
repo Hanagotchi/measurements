@@ -21,8 +21,21 @@ class Measurement(Base):
         CheckConstraint('humidity >= 0 AND humidity <= 100', name='check_humidity'),
         CheckConstraint('humidity >= 0 ', name='check_light'),
         CheckConstraint('humidity >= 0 AND humidity <= 100', name='check_watering'),
-        {'schema': 'dev'}  
+        {'schema': 'dev'}
     )
 
     def __repr__(self):
-        return f"Measurement(id={self.id!r}, id_plant={self.id_plant!r}, plant_type={self.plant_type!r}, time_stamp={self.time_stamp!r}, temperature={self.temperature!r}, humidity={self.humidity!r}, light={self.light!r}, watering={self.watering!r})"
+        return format(
+            ("Measurement(id={0!r}, id_plant={1!r}, "
+             "plant_type={2!r}, time_stamp={3!r}, "
+             "temperature={4!r}, humidity={5!r}, "
+             "light={6!r}, watering={7!r})"),
+            self.id,
+            self.id_plant,
+            self.plant_type,
+            self.time_stamp,
+            self.temperature,
+            self.humidity,
+            self.light,
+            self.watering
+        )

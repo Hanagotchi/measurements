@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, select, delete
+from sqlalchemy import create_engine, select, delete, engine
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 from os import environ
@@ -9,13 +9,19 @@ from app.database.models.Measurement import Measurement
 
 load_dotenv()
 
+
 class SQLAlchemyClient():
 
-    db_url = f'postgresql://{environ["POSTGRES_USER"]}:{environ["POSTGRES_PASSWORD"]}@{environ["POSTGRES_HOST"]}:{environ["POSTGRES_PORT"]}/{environ["POSTGRES_DB"]}'
-    engine = create_engine(db_url)
+    db_url = engine.URL.create(
+        "postgresql",
+        database=environ["POSTGRES_DB"],
+        username=environ["POSTGRES_USER"],
+        password=environ["POSTGRES_PASSWORD"],
+        host=environ["POSTGRES_HOST"],
+        port=environ["POSTGRES_PORT"]
+    )
 
-    # If the schema wasn't created 
-    # Base.metadata.create_all(self.engine)
+    engine = create_engine(db_url)
 
     def __init__(self):
         self.conn = self.engine.connect()
@@ -34,34 +40,39 @@ class SQLAlchemyClient():
             session.add(record)
             session.commit()
 
-
-    ### DEVICE_PLANT TABLE ###
-    
     def find_device_plant(self, id_device: str) -> DevicePlant:
 
         query = select(DevicePlant).where(DevicePlant.id_device == id_device)
 
         with Session(self.engine) as session:
             result = session.scalars(query).one()
-        
+
         return result
-    
-    def update_device_plant(self, id_device: str, id_plant: Optional[int], plant_type: Optional[int], id_user: Optional[int]):
+
+    def update_device_plant(self,
+                            id_device: str,
+                            id_plant: Optional[int],
+                            plant_type: Optional[int],
+                            id_user: Optional[int]):
+
         query = select(DevicePlant).where(DevicePlant.id_device == id_device)
 
         with Session(self.engine) as session:
             device_plant = session.scalars(query).one()
-            if id_plant: device_plant.id_plant = id_plant
-            if plant_type: device_plant.id_plant = plant_type
-            if id_user: device_plant.id_user = id_user
+            if id_plant:
+                device_plant.id_plant = id_plant
+            if plant_type:
+                device_plant.id_plant = plant_type
+            if id_user:
+                device_plant.id_user = id_user
             session.commit()
 
-    ### MEASUREMENTS TABLE ###
-
     def get_last_measurement(self, id_plant: int) -> Measurement:
-        query = select(Measurement).where(Measurement.id_plant == id_plant).order_by(Measurement.id.desc()).limit(1)
+        query = select(Measurement).where(
+            Measurement.id_plant == id_plant
+        ).order_by(Measurement.id.desc()).limit(1)
 
         with Session(self.engine) as session:
             result: Measurement = session.scalars(query).one()
-        
+
         return result

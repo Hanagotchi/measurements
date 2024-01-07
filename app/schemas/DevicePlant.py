@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 
+
 class DevicePlantSchema(BaseModel):
     id_device: str
     id_plant: int

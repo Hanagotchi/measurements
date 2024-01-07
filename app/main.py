@@ -8,6 +8,7 @@ app = FastAPI()
 logger = logging.getLogger("measurements")
 logger.setLevel("DEBUG")
 
+
 @app.on_event("startup")
 async def start_up():
     app.logger = logger
@@ -33,7 +34,7 @@ async def root():
 
 # Endpoint only for DB conection testing.
 @app.post("/device-plant")
-async def add_new_device_plant(req: Request, device_plant: DevicePlantSchema = Body(...)):
+async def add_new_device_plant(req: Request,
+                               device_plant: DevicePlantSchema = Body(...)):
     req.app.database.add_new(DevicePlant.from_pydantic(device_plant))
     return req.app.database.find_device_plant(device_plant.id_device)
-
