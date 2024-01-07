@@ -1,6 +1,8 @@
 from fastapi import Body, FastAPI, Request
 from app.database.database import SQLAlchemyClient
 from app.database.models.DevicePlant import DevicePlant
+from app.schemas.DevicePlant import DevicePlantSchema
+
 
 app = FastAPI()
 
@@ -12,7 +14,7 @@ async def start_up():
 @app.on_event("shutdown")
 async def shutdown_db_client():
     app.database.shutdown()
-    
+
 
 
 @app.get("/")
@@ -20,7 +22,7 @@ async def root():
     return {"message": "Hello World"}
 
 @app.post("/device-plant")
-async def add_new_device_plant(req: Request, device_plant: DevicePlant = Body(...)):
-    req.app.database.add_new(device_plant)
+async def add_new_device_plant(req: Request, device_plant: DevicePlantSchema = Body(...)):
+    req.app.database.add_new(DevicePlant.from_pydantic(device_plant))
     return req.app.database.find_device_plant(device_plant.id_device)
 

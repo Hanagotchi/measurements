@@ -9,6 +9,8 @@ services:
       - .env
     ports:
       - "8080:8080"
+    depends_on:
+      - db
 
   rabbitmq:
     image: rabbitmq:3.12-management
