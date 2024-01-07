@@ -1,7 +1,6 @@
 from sqlalchemy import CheckConstraint, Integer, String, SmallInteger
 from sqlalchemy.orm import Mapped, mapped_column
 from typing import Optional
-
 from app.database.models.Base import Base
 
 
