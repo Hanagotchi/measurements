@@ -17,3 +17,7 @@ CREATE TABLE IF NOT EXISTS dev.measurements (
     light SMALLINT,
     watering SMALLINT
 );
+
+CREATE TABLE IF NOT EXISTS dev.numbers (
+    number INT PRIMARY KEY
+);
