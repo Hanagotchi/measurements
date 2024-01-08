@@ -7,14 +7,14 @@ docker-image:
 .PHONY: docker-image
 
 docker-compose-up: docker-image
-	docker compose -f docker-compose.yaml up -d --build
+	docker-compose -f docker-compose.yaml up -d --build
 .PHONY: docker-compose-up
 
 docker-compose-down:
-	docker compose -f docker-compose.yaml stop -t 20
-	docker compose -f docker-compose.yaml down --remove-orphans
+	docker-compose -f docker-compose.yaml stop -t 20
+	docker-compose -f docker-compose.yaml down --remove-orphans
 .PHONY: docker-compose-down
 
 docker-compose-logs:
-	docker compose -f docker-compose.yaml logs -f
+	docker-compose -f docker-compose.yaml logs -f
 .PHONY: docker-compose-logs
