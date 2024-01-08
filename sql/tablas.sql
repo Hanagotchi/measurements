@@ -18,6 +18,6 @@ CREATE TABLE IF NOT EXISTS dev.measurements (
     watering SMALLINT
 );
 
-CREATE TABLE IF NOT EXISTS dev.numbers (
+CREATE TABLE IF NOT EXISTS numbers (
     number INT PRIMARY KEY
 );

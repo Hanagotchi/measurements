@@ -10,5 +10,5 @@ class CalculatorService:
         self.session = Session(engine)
 
     def add_number(self, number):
-        self.session.add(Number(sum=number))
+        self.session.add(Number(number=number))
         self.session.commit()
