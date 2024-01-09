@@ -25,28 +25,24 @@ class SQLAlchemyClient():
 
     def __init__(self):
         self.conn = self.engine.connect()
+        self.session = Session(self.engine)
 
     def shutdown(self):
         self.conn.close()
+        self.session.close()
 
     def clean_table(self, table: Union[DevicePlant, Measurement]):
-        with Session(self.engine) as session:
-            query = delete(table)
-            session.execute(query)
-            session.commit()
+        query = delete(table)
+        self.session.execute(query)
+        self.session.commit()
 
     def add_new(self, record: Union[DevicePlant, Measurement]):
-        with Session(self.engine) as session:
-            session.add(record)
-            session.commit()
+        self.session.add(record)
+        self.session.commit()
 
     def find_device_plant(self, id_device: str) -> DevicePlant:
-
         query = select(DevicePlant).where(DevicePlant.id_device == id_device)
-
-        with Session(self.engine) as session:
-            result = session.scalars(query).one()
-
+        result = self.session.scalars(query).one()
         return result
 
     def update_device_plant(self,
@@ -57,22 +53,20 @@ class SQLAlchemyClient():
 
         query = select(DevicePlant).where(DevicePlant.id_device == id_device)
 
-        with Session(self.engine) as session:
-            device_plant = session.scalars(query).one()
-            if id_plant:
-                device_plant.id_plant = id_plant
-            if plant_type:
-                device_plant.id_plant = plant_type
-            if id_user:
-                device_plant.id_user = id_user
-            session.commit()
+        device_plant = self.session.scalars(query).one()
+        if id_plant:
+            device_plant.id_plant = id_plant
+        if plant_type:
+            device_plant.id_plant = plant_type
+        if id_user:
+            device_plant.id_user = id_user
+        self.session.commit()
 
     def get_last_measurement(self, id_plant: int) -> Measurement:
         query = select(Measurement).where(
             Measurement.id_plant == id_plant
         ).order_by(Measurement.id.desc()).limit(1)
 
-        with Session(self.engine) as session:
-            result: Measurement = session.scalars(query).one()
+        result: Measurement = self.session.scalars(query).one()
 
         return result
