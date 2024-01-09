@@ -12,7 +12,10 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - sql
+      rabbitmq:
+        condition: service_healthy
+      sql:
+        condition: service_healthy
 
   rabbitmq:
     build:
@@ -21,6 +24,17 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "rabbitmq-diagnostics",
+          "check_port_connectivity"
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 50s
 
   sql:
     build:
@@ -32,3 +46,22 @@ services:
       - "5432:5432"
     volumes:
       - ./app/service/sql:/docker-entrypoint-initdb.d
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "pg_isready",
+          "-h",
+          "localhost",
+          "-p",
+          "5432",
+          "-q",
+          "-U",
+          "${POSTGRES_USER}",
+          "-d",
+          "${POSTGRES_DB}"
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 50s
