@@ -31,6 +31,9 @@ class SQLAlchemyClient():
         self.conn.close()
         self.session.close()
 
+    def rollback(self):
+        self.session.rollback()
+
     def clean_table(self, table: Union[DevicePlant, Measurement]):
         query = delete(table)
         self.session.execute(query)
