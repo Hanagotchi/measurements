@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS dev.measurements (
     plant_type SMALLINT,
     time_stamp VARCHAR(50),
     temperature SMALLINT,
-    humidity SMALLINT,
-    light SMALLINT,
-    watering SMALLINT
+    humidity SMALLINT CHECK (humidity >= 0 AND humidity <= 100),
+    light SMALLINT CHECK (light >= 0),
+    watering SMALLINT CHECK (watering >= 0 AND watering <= 100)
 );
