@@ -41,5 +41,5 @@ class Consumer:
                          id_user=body["id_user"])
         session.add(dp)
         session.commit()
-        logging.info('action: resgitro agregado a la base de datos|'
+        logging.info('action: registro agregado a la base de datos|'
                      f"device_plant: {dp}")
