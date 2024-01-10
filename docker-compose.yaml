@@ -8,6 +8,15 @@ services:
       - .env
     ports:
       - "8080:8080"
+    depends_on:
+      - sql
+
+  rabbitmq:
+    image: rabbitmq:3.12-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+
   sql:
     image: postgres:latest
     env_file:
