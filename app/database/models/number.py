@@ -1,6 +1,5 @@
 from sqlalchemy import Column, Integer
-
-from app.models.database import Base
+from app.database.models.base import Base
 
 
 class Number(Base):

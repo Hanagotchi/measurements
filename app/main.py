@@ -1,10 +1,10 @@
 from fastapi import FastAPI, Request, Body
 from app.database.database import SQLAlchemyClient
-from app.database.models.DevicePlant import DevicePlant
-from app.schemas.DevicePlant import DevicePlantSchema
+from app.database.models.device_plant import DevicePlant
+from app.schemas.device_plant import DevicePlantSchema
 import logging
 from app.controller.calculator_controller import CalculatorController
-from app.schemas.schemas import Request
+from app.schemas.schemas import Request as RequestSchema
 from app.service.calculator_service import CalculatorService
 
 app = FastAPI()
@@ -39,7 +39,7 @@ async def root():
 
 
 @app.post("/sum")
-async def calculator(request: Request):
+async def calculator(request: RequestSchema):
     return controller.handle_sum(request)
 
 
