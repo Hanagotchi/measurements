@@ -4,10 +4,12 @@ from service.rabbitmq.consumer import Consumer
 
 
 def main():
-    logging_level = os.environ.get("LOGGING_LEVEL")
+    logger = logging.getLogger("rabbitmq_consumer")
+    logging_level = os.environ.get("LOGGING_LEVEL") # DEBUG, INFO, WARNING, ERROR, CRITICAL
     queue_name = os.environ.get("QUEUE_NAME")
     initialize_log(logging_level)
     consumer = Consumer(queue_name)
+    logger.info("[RABBITMQ] Starting consumer...")
     consumer.run()
 
 
