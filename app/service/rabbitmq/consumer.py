@@ -1,6 +1,8 @@
 import os
 import json
 import logging
+from pydantic import ValidationError
+from schemas.measurement_reading import MeasurementReadingSchema
 from sqlalchemy import Column, Integer, String, MetaData
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
@@ -9,6 +11,7 @@ from ..common.middleware import Middleware
 
 Base = declarative_base(metadata=MetaData(schema='dev'))
 
+logger = logging.getLogger("rabbitmq_consumer")
 
 class DevicePlant(Base):
     __tablename__ = "device_plant"
@@ -33,13 +36,10 @@ class Consumer:
         self.__middleware.listen_on(self.__queue_name, self.__callback)
 
     def __callback(self, body):
-        body = json.loads(body)
-        print(body)
-        dp = DevicePlant(id_device=body["id_device"],
-                         id_plant=body["id_plant"],
-                         plant_type=body["plant_type"],
-                         id_user=body["id_user"])
-        session.add(dp)
-        session.commit()
-        logging.info('action: registro agregado a la base de datos|'
-                     f"device_plant: {dp}")
+        try:
+            measurement = MeasurementReadingSchema(**json.loads(body))  
+            logger.debug(f"[ NEW PACKAGE RECEIVED FROM ID_DEVICE = {measurement.id_device} ]")
+            logger.debug(f"[ PACKAGE: {body} ]")
+        except ValidationError as e:
+            logger.warning("[ INVALID PACKAGE RECEIVED ]")
+            logger.debug(f"[ ERROR DETAIL ] [ PACKAGE: {body} ] [ ERROR: {e.errors()} ]")
