@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 from os import environ
 from typing import Optional, Union
 
-from app.database.models.DevicePlant import DevicePlant
-from app.database.models.Measurement import Measurement
+from app.database.models.device_plant import DevicePlant
+from app.database.models.measurement import Measurement
 
 load_dotenv()
 

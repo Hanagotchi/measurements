@@ -1,5 +1,4 @@
-version: '3.9'
-name: measurements
+version: '3.8'
 services:
   python:
     build:
@@ -10,7 +9,7 @@ services:
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      - sql
 
   rabbitmq:
     image: rabbitmq:3.12-management
@@ -18,7 +17,7 @@ services:
       - "5672:5672"
       - "15672:15672"
 
-  db:
+  sql:
     image: postgres:latest
     env_file:
       - .env

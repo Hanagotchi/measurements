@@ -1,7 +1,7 @@
 from sqlalchemy import Integer, String, SmallInteger
 from sqlalchemy.orm import Mapped, mapped_column
-from app.database.models.Base import Base
-from app.schemas.DevicePlant import DevicePlantSchema
+from app.database.models.base import Base
+from app.schemas.device_plant import DevicePlantSchema
 
 
 class DevicePlant(Base):

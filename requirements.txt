@@ -1,12 +1,13 @@
 fastapi==0.108.0
 uvicorn==0.25.0
 python-dotenv
+flake8
+psycopg2
 
 ### RabbitMQ ###
 pika
 
 ### PostgreSQL ###
-psycopg2
 SQLAlchemy
 
 ### MongoDB ###
