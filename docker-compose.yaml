@@ -16,6 +16,10 @@ services:
         condition: service_healthy
       sql:
         condition: service_healthy
+    volumes:
+      - ./app:/app/app
+    tty: true
+
 
   rabbitmq:
     build:
