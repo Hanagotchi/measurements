@@ -99,7 +99,7 @@ class Consumer:
         except RowNotFoundError as err:
             logger.info(f"[ DEVICE PLANT WITH ID = {err.primary_key} NOT FOUND ]")
             logger.debug(f"[ ERROR ] [ DETAIL: {err} ] [ PACKAGE: {body} ]")
-            
+
             device_plant = None  # For not saving the measurement.
         except EmptyPackageError as err:
             logger.info("[ EMPTY PACKAGE RECEIVED ] [ READY TO SEND NOTIFICATION ]")
@@ -113,7 +113,7 @@ class Consumer:
             logger.debug(f"[ ERROR ] [ DETAIL: {err} ] [ PACKAGE: {body} ]")
 
             # TO DO - Ticket HAN-17 & Step #4 from Ticket HAN-14
-            parameters = err.parameters  # List of deviating parameters.
+            # parameters = err.parameters  # List of deviating parameters.
             send_notification(device_plant.id_user, err)
 
         if device_plant is not None and measurement is not None:

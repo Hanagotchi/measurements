@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional
 
+
 class MeasurementReadingSchema(BaseModel):
     """
         Schema used to parse the data from measurements obtained via RabbitMQ.

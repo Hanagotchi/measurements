@@ -5,7 +5,8 @@ from service.rabbitmq.consumer import Consumer
 
 def main():
     logger = logging.getLogger("rabbitmq_consumer")
-    logging_level = os.environ.get("LOGGING_LEVEL") # DEBUG, INFO, WARNING, ERROR, CRITICAL
+    # DEBUG, INFO, WARNING, ERROR, CRITICAL
+    logging_level = os.environ.get("LOGGING_LEVEL")
     queue_name = os.environ.get("QUEUE_NAME")
     initialize_log(logging_level)
     consumer = Consumer(queue_name)
