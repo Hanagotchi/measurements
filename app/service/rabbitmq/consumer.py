@@ -60,21 +60,27 @@ class Consumer:
 
         # ...This is an example, the exception can be much more personalized...
         # raise DeviatingParametersError(["temperature", "humidity"])
-
     def save_measurement(self, measurement_from_rabbit, device_plant):
         logger.info("TO DO - Step #5 from Ticket HAN-14")
 
-        measurement_from_db = Measurement(id_plant=device_plant.id_plant,
-                                plant_type=device_plant.plant_type,
-                                time_stamp=measurement_from_rabbit.time_stamp,
-                                temperature=measurement_from_rabbit.temperature,
-                                humidity=measurement_from_rabbit.humidity,
-                                light=measurement_from_rabbit.light,
-                                watering=measurement_from_rabbit.watering)
+        # Indentation fixed (4 spaces)
+        measurement_from_db = Measurement(
+            id_plant=device_plant.id_plant,
+            plant_type=device_plant.plant_type,
+            time_stamp=measurement_from_rabbit.time_stamp,
+            temperature=measurement_from_rabbit.temperature,
+            humidity=measurement_from_rabbit.humidity,
+            light=measurement_from_rabbit.light,
+            watering=measurement_from_rabbit.watering
+        )
         try:
             self.__sqlAlchemyClient.add_new(measurement_from_db)
+
+            # Line length reduced by breaking up the string
             logger.info(
-                f"action: registro agregado a la base de datos|measurement: {measurement_from_db}")
+                "action: registro agregado a la base de datos"
+                f"|measurement: {measurement_from_db}"
+            )
         except Exception as err:
             logger.error(f"{err} - {type(err)}")
             self.__sqlAlchemyClient.rollback()
