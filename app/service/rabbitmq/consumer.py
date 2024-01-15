@@ -1,13 +1,14 @@
 import os
 import json
 import pydantic
+import logging
 from exceptions.invalid_insertion import InvalidInsertionError
 from exceptions.deviating_parameters import DeviatingParameters
 from exceptions.empty_package import EmptyPackageError
 from exceptions.row_not_found import RowNotFoundError
 from pydantic import ValidationError
 from schemas.measurement_reading import MeasurementReadingSchema
-from sqlalchemy import Column, Integer, String, MetaData
+from sqlalchemy import MetaData
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -64,12 +65,12 @@ class Consumer:
         logger.info("TO DO - Step #5 from Ticket HAN-14")
 
         measurement_from_db = Measurement(id_plant=device_plant.id_plant,
-                                          plant_type=device_plant.plant_type,
-                                          time_stamp=measurement_from_rabbit.time_stamp,
-                                          temperature=measurement_from_rabbit.temperature,
-                                          humidity=measurement_from_rabbit.humidity,
-                                          light=measurement_from_rabbit.light,
-                                          watering=measurement_from_rabbit.watering)
+                                plant_type=device_plant.plant_type,
+                                time_stamp=measurement_from_rabbit.time_stamp,
+                                temperature=measurement_from_rabbit.temperature,
+                                humidity=measurement_from_rabbit.humidity,
+                                light=measurement_from_rabbit.light,
+                                watering=measurement_from_rabbit.watering)
         try:
             self.__sqlAlchemyClient.add_new(measurement_from_db)
             logger.info(
