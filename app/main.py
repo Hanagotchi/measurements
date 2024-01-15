@@ -1,11 +1,11 @@
 from fastapi import FastAPI, Request, Body
-from app.database.database import SQLAlchemyClient
-from app.database.models.device_plant import DevicePlant
-from app.schemas.device_plant import DevicePlantSchema
+from database.database import SQLAlchemyClient
+from database.models.device_plant import DevicePlant
+from schemas.device_plant import DevicePlantSchema
 import logging
-from app.controller.calculator_controller import CalculatorController
-from app.schemas.schemas import Request as RequestSchema
-from app.service.calculator_service import CalculatorService
+from controller.calculator_controller import CalculatorController
+from schemas.schemas import Request as RequestSchema
+from service.calculator_service import CalculatorService
 
 app = FastAPI()
 service = CalculatorService()
