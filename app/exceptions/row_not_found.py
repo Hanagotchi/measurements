@@ -1,4 +1,4 @@
-class RowNotFoundErrorError(Exception):
+class RowNotFoundError(Exception):
     def __init__(self, primary_key, name_table):
         self.primary_key = primary_key
         self.name_table = name_table

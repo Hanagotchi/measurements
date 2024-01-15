@@ -17,7 +17,7 @@ services:
       sql:
         condition: service_healthy
     volumes:
-      - ./app:/app/app
+      - ./app:/app
     tty: true
 
 

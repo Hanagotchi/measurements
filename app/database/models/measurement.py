@@ -25,17 +25,11 @@ class Measurement(Base):
     )
 
     def __repr__(self):
-        return format(
-            ("Measurement(id={0!r}, id_plant={1!r}, "
-             "plant_type={2!r}, time_stamp={3!r}, "
-             "temperature={4!r}, humidity={5!r}, "
-             "light={6!r}, watering={7!r})"),
-            self.id,
-            self.id_plant,
-            self.plant_type,
-            self.time_stamp,
-            self.temperature,
-            self.humidity,
-            self.light,
-            self.watering
-        )
+        return (f"Measurement(id={self.id}, "
+                f"id_plant={self.id_plant}, "
+                f"plant_type={self.plant_type}, "
+                f"time_stamp={self.time_stamp}, "
+                f"temperature={self.temperature}, "
+                f"humidity={self.humidity}, "
+                f"light={self.light}, "
+                f"watering={self.watering})")

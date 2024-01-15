@@ -10,5 +10,5 @@ class MeasurementReadingSchema(BaseModel):
     humidity: Optional[int]
     light: Optional[int]
     watering: Optional[int]
-    id_device: int
+    id_device: str
     time_stamp: str
