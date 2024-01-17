@@ -3,7 +3,7 @@ import json
 import pydantic
 import logging
 from exceptions.invalid_insertion import InvalidInsertionError
-from exceptions.deviating_parameters import DeviatingParameters
+from exceptions.deviating_parameters import DeviatingParametersError
 from exceptions.empty_package import EmptyPackageError
 from exceptions.row_not_found import RowNotFoundError
 from pydantic import ValidationError
@@ -120,7 +120,7 @@ class Consumer:
             self.send_notification(device_plant.id_user, err)
 
             measurement = None  # For not saving the measurement.
-        except DeviatingParameters as err:
+        except DeviatingParametersError as err:
             logger.warn("[ DEVIATING PARAMETERS ] [ READY TO SEND NOTIFICATION ]")
             logger.debug(f"[ ERROR ] [ DETAIL: {err} ] [ PACKAGE: {body} ]")
 
