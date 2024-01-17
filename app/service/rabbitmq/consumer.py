@@ -99,7 +99,9 @@ class Consumer:
             device_plant = self.obtain_device_plant(measurement)
             self.check_package(measurement)
             self.apply_rules(measurement, device_plant)
-        except (pydantic.errors.PydanticUserError, ValidationError, json.JSONDecodeError) as err:
+        except (pydantic.errors.PydanticUserError,
+                ValidationError,
+                json.JSONDecodeError) as err:
             logger.warn(LoggerMessages.INVALID_PACKAGE_RECEIVED)
             logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
         except RowNotFoundError as err:
