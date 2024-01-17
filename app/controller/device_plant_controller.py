@@ -15,6 +15,7 @@ def create_device_plant_relation(req: Request, device_plant: DevicePlantSchema):
         return req.app.database.find_device_plant(device_plant.id_device)
     except IntegrityError as err:
         req.app.database.rollback()
+        logger.warning(err)
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=format(err))
     except PendingRollbackError as err:
         req.app.database.rollback()
