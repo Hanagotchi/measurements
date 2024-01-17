@@ -1,5 +1,6 @@
 import os
 import json
+from exceptions.logger_messages import LoggerMessages
 import pydantic
 import logging
 from exceptions.invalid_insertion import InvalidInsertionError
@@ -25,6 +26,8 @@ dbUrl = os.environ.get("DATABASE_URL")
 engine = create_engine(dbUrl, echo=True, future=True)
 session = Session(engine)
 
+# logger_messages.py
+
 
 class Consumer:
     def __init__(self, queue_name):
@@ -40,7 +43,7 @@ class Consumer:
         try:
             dp = self.__sqlAlchemyClient.find_device_plant(
                 measurement_from_rabbit.id_device)
-            logger.info(f"action: device_plant encontrado|device_plant: {dp}")
+            logger.info(LoggerMessages.ROW_FOUND.format("DEVICE_PLANT", dp))
             return dp
         except Exception as err:
             logger.error(f"{err} - {type(err)}")
@@ -76,11 +79,8 @@ class Consumer:
         try:
             self.__sqlAlchemyClient.add_new(measurement_from_db)
 
-            # Line length reduced by breaking up the string
-            logger.info(
-                "action: registro agregado a la base de datos"
-                f"|measurement: {measurement_from_db}"
-            )
+            logger.info(LoggerMessages.NEW_ROW_INSERTED.format(
+                "MEASUREMENT", measurement_from_db))
         except Exception as err:
             logger.error(f"{err} - {type(err)}")
             self.__sqlAlchemyClient.rollback()
@@ -92,37 +92,31 @@ class Consumer:
 
         try:
             measurement = MeasurementReadingSchema(**json.loads(body))
-            logger.info(
-                f"[ NEW PACKAGE RECEIVED FROM ID_DEVICE = {measurement.id_device} ]")
-            logger.debug(f"[ PACKAGE: {body} ]")
+            logger.info(LoggerMessages.NEW_PACKAGE_RECEIVED.format(
+                measurement.id_device))
+            logger.debug(LoggerMessages.PACKAGE_DETAIL.format(body))
 
             device_plant = self.obtain_device_plant(measurement)
             self.check_package(measurement)
             self.apply_rules(measurement, device_plant)
-        except pydantic.errors.PydanticUserError as err:
-            logger.warn("[ INVALID PACKAGE RECEIVED ]")
-            logger.debug(f"[ ERROR ] [ DETAIL: {err} ] [ PACKAGE: {body} ]")
-        except ValidationError as err:
-            logger.warn("[ INVALID PACKAGE RECEIVED ]")
-            logger.debug(f"[ ERROR ] [ DETAIL: {err} ] [ PACKAGE: {body} ]")
-        except json.JSONDecodeError as err:
-            logger.warn("[ INVALID PACKAGE RECEIVED ]")
-            logger.debug(f"[ ERROR ] [ DETAIL: {err} ] [ PACKAGE: {body} ]")
+        except (pydantic.errors.PydanticUserError, ValidationError, json.JSONDecodeError) as err:
+            logger.warn(LoggerMessages.INVALID_PACKAGE_RECEIVED)
+            logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
         except RowNotFoundError as err:
-            logger.warn(f"[ DEVICE PLANT WITH ID = {err.primary_key} NOT FOUND ]")
-            logger.debug(f"[ ERROR ] [ DETAIL: {err} ] [ PACKAGE: {body} ]")
+            logger.warn(LoggerMessages.ROW_NOT_FOUND.format(err.primary_key, err.table))
+            logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
 
             device_plant = None  # For not saving the measurement.
         except EmptyPackageError as err:
-            logger.warn("[ EMPTY PACKAGE RECEIVED ] [ READY TO SEND NOTIFICATION ]")
-            logger.debug(f"[ ERROR ] [ DETAIL: {err} ] [ PACKAGE: {body} ]")
+            logger.warn(LoggerMessages.EMPTY_PACKAGE_RECEIVED)
+            logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
 
             self.send_notification(device_plant.id_user, err)
 
             measurement = None  # For not saving the measurement.
         except DeviatingParametersError as err:
-            logger.warn("[ DEVIATING PARAMETERS ] [ READY TO SEND NOTIFICATION ]")
-            logger.debug(f"[ ERROR ] [ DETAIL: {err} ] [ PACKAGE: {body} ]")
+            logger.warn(LoggerMessages.DEVIATING_PARAMETERS)
+            logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
 
             # TO DO - Ticket HAN-17 & Step #4 from Ticket HAN-14
             # parameters = err.parameters  # List of deviating parameters.
@@ -132,5 +126,5 @@ class Consumer:
             try:
                 self.save_measurement(measurement, device_plant)
             except InvalidInsertionError as err:
-                logger.error("[ INVALID INSERTION ]")
-                logger.debug(f"[ ERROR ] [ DETAIL: {err} ] [ PACKAGE: {body} ]")
+                logger.error(LoggerMessages.INVALID_INSERTION)
+                logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
