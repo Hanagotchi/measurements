@@ -6,6 +6,7 @@ import logging
 from controller.calculator_controller import CalculatorController
 from schemas.schemas import Request as RequestSchema
 from service.calculator_service import CalculatorService
+from router import api_router
 
 app = FastAPI()
 service = CalculatorService()
@@ -53,3 +54,5 @@ async def add_new_device_plant(req: Request,
     except Exception as e:
         req.app.database.rollback()
         raise e
+
+app.include_router(api_router)
