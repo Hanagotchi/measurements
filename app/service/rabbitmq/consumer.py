@@ -105,7 +105,8 @@ class Consumer:
             logger.warn(LoggerMessages.INVALID_PACKAGE_RECEIVED)
             logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
         except RowNotFoundError as err:
-            logger.warn(LoggerMessages.ROW_NOT_FOUND.format(err.primary_key, err.table))
+            logger.warn(LoggerMessages.ROW_NOT_FOUND.format(err.primary_key,
+                                                            err.name_table))
             logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
 
             device_plant = None  # For not saving the measurement.
