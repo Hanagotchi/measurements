@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-
+from typing import Optional
 
 class DevicePlantSchema(BaseModel):
     id_device: str = Field(...)
@@ -14,5 +14,21 @@ class DevicePlantSchema(BaseModel):
                 "id_plant": 1,
                 "plant_type": 1,
                 "id_user": 1
+            }
+        }
+
+
+class DevicePlantUpdateSchema(BaseModel):
+    id_device: str
+    id_plant: Optional[int]
+    plant_type: Optional[int]
+    id_user: Optional[int]
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "id_device": "1",
+                "id_plant": 1,
+                "plant_type": 1,
             }
         }
