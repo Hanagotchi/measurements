@@ -19,9 +19,13 @@ def create_device_plant_relation(req: Request, device_plant: DevicePlantSchema):
         req.app.database.rollback()
 
         if isinstance(err.orig, UniqueViolation):
+            parsed_error = err.orig.pgerror.split("\n")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=format(err.orig))
+                detail={
+                    "error": parsed_error[0],
+                    "detail": parsed_error[1]
+                })
 
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -52,9 +56,13 @@ def update_device_plant(req: Request,
         req.app.database.rollback()
 
         if isinstance(err.orig, UniqueViolation):
+            parsed_error = err.orig.pgerror.split("\n")
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=format(err.orig))
+                detail={
+                    "error": parsed_error[0],
+                    "detail": parsed_error[1]
+                })
 
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
