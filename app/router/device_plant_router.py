@@ -10,6 +10,6 @@ device_plant = APIRouter()
         status_code=status.HTTP_201_CREATED,
         response_model=DevicePlantSchema
         )
-async def create_device_plant_relation(req: Request, 
+async def create_device_plant_relation(req: Request,
                                        device_plant: DevicePlantSchema = Body(...)):
     return controller.create_device_plant_relation(req, device_plant)
