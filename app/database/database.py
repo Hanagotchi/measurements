@@ -60,7 +60,7 @@ class SQLAlchemyClient():
         if id_plant:
             device_plant.id_plant = id_plant
         if plant_type:
-            device_plant.id_plant = plant_type
+            device_plant.plant_type = plant_type
         if id_user:
             device_plant.id_user = id_user
         self.session.commit()
