@@ -21,18 +21,18 @@ def create_device_plant_relation(req: Request, device_plant: DevicePlantSchema):
         if isinstance(err.orig, UniqueViolation):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=err.orig)
+                detail=format(err.orig))
 
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=err)
+            detail=format(err))
     except PendingRollbackError as err:
         req.app.database.rollback()
         logger.warning(format(err))
 
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=err)
+            detail=format(err))
 
 
 def update_device_plant(req: Request,
@@ -48,7 +48,21 @@ def update_device_plant(req: Request,
             device_plant_update_set.id_user,
         )
         return req.app.database.find_device_plant(device_plant_update_set.id_device)
-    except Exception as err:
+    except IntegrityError as err:
         req.app.database.rollback()
-        logger.warning(err)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        if isinstance(err.orig, UniqueViolation):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=format(err.orig))
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=format(err))
+    except PendingRollbackError as err:
+        req.app.database.rollback()
+        logger.warning(format(err))
+
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=format(err))
