@@ -21,6 +21,18 @@ async def create_device_plant_relation(req: Request,
         response_model=DevicePlantSchema
         )
 async def update_fields_in_device_plant(req: Request,
-                                        device_plant_update_set: DevicePlantUpdateSchema = Body(...)):
+                                        device_plant_update_set:
+                                        DevicePlantUpdateSchema = Body(...)):
 
     return controller.update_device_plant(req, device_plant_update_set)
+
+
+@device_plant.put(
+        "",
+        status_code=status.HTTP_200_OK,
+        response_model=DevicePlantSchema
+        )
+async def update_all_in_device_plant(req: Request,
+                                     device_plant: DevicePlantSchema = Body(...)):
+
+    return controller.update_device_plant(req, device_plant)

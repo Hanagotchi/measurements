@@ -4,6 +4,8 @@ from schemas.device_plant import DevicePlantSchema, DevicePlantUpdateSchema
 import logging
 from psycopg2.errors import UniqueViolation
 from sqlalchemy.exc import PendingRollbackError, IntegrityError
+from typing import Union
+
 
 logger = logging.getLogger("app")
 logger.setLevel("DEBUG")
@@ -31,9 +33,13 @@ def create_device_plant_relation(req: Request, device_plant: DevicePlantSchema):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=err)
-    
 
-def update_device_plant(req: Request, device_plant_update_set: DevicePlantUpdateSchema):
+
+def update_device_plant(req: Request,
+                        device_plant_update_set: Union[
+                            DevicePlantSchema,
+                            DevicePlantUpdateSchema
+                            ]):
     try:
         req.app.database.update_device_plant(
             device_plant_update_set.id_device,
