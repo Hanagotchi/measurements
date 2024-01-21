@@ -1,10 +1,14 @@
+from typing import Union
 from fastapi import Request, status, HTTPException
 from database.models.device_plant import DevicePlant
-from schemas.device_plant import DevicePlantSchema, DevicePlantUpdateSchema
+from schemas.device_plant import (
+    DevicePlantPartialUpdateSchema,
+    DevicePlantSchema,
+    DevicePlantUpdateSchema
+)
 import logging
 from psycopg2.errors import UniqueViolation
 from sqlalchemy.exc import PendingRollbackError, IntegrityError
-from typing import Union
 
 
 logger = logging.getLogger("app")
@@ -40,18 +44,17 @@ def create_device_plant_relation(req: Request, device_plant: DevicePlantSchema):
 
 
 def update_device_plant(req: Request,
-                        device_plant_update_set: Union[
-                            DevicePlantSchema,
-                            DevicePlantUpdateSchema
-                            ]):
+                        id_device: str,
+                        device_plant_update_set:
+                        Union[DevicePlantUpdateSchema, DevicePlantPartialUpdateSchema]):
     try:
         req.app.database.update_device_plant(
-            device_plant_update_set.id_device,
+            id_device,
             device_plant_update_set.id_plant,
             device_plant_update_set.plant_type,
             device_plant_update_set.id_user,
         )
-        return req.app.database.find_device_plant(device_plant_update_set.id_device)
+        return req.app.database.find_device_plant(id_device)
     except IntegrityError as err:
         req.app.database.rollback()
 

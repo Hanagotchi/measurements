@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Body, Request, status
-from schemas.device_plant import DevicePlantSchema, DevicePlantUpdateSchema
+from schemas.device_plant import DevicePlantPartialUpdateSchema, DevicePlantSchema, DevicePlantUpdateSchema
 from controller import device_plant_controller as controller
 
 device_plant = APIRouter()
@@ -16,23 +16,25 @@ async def create_device_plant_relation(req: Request,
 
 
 @device_plant.patch(
-        "",
+        "/{id_device}",
         status_code=status.HTTP_200_OK,
         response_model=DevicePlantSchema
         )
-async def update_fields_in_device_plant(req: Request,
+async def update_fields_in_device_plant(id_device: str,
+                                        req: Request,
                                         device_plant_update_set:
-                                        DevicePlantUpdateSchema = Body(...)):
+                                        DevicePlantPartialUpdateSchema = Body(...)):
 
-    return controller.update_device_plant(req, device_plant_update_set)
+    return controller.update_device_plant(req, id_device, device_plant_update_set)
 
 
 @device_plant.put(
-        "",
+        "/{id_device}",
         status_code=status.HTTP_200_OK,
         response_model=DevicePlantSchema
         )
-async def update_all_in_device_plant(req: Request,
-                                     device_plant: DevicePlantSchema = Body(...)):
+async def update_all_in_device_plant(id_device: str,
+                                     req: Request,
+                                     device_plant: DevicePlantUpdateSchema = Body(...)):
 
-    return controller.update_device_plant(req, device_plant)
+    return controller.update_device_plant(req, id_device, device_plant)
