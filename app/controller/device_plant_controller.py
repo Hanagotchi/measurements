@@ -19,7 +19,6 @@ def withSQLExceptionsHandle(callback):
     try:
         return callback()
     except IntegrityError as err:
-
         if isinstance(err.orig, UniqueViolation):
             parsed_error = err.orig.pgerror.split("\n")
             raise HTTPException(
@@ -32,12 +31,13 @@ def withSQLExceptionsHandle(callback):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=format(err))
+
     except PendingRollbackError as err:
         logger.warning(format(err))
-
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=format(err))
+
     except NoResultFound as err:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,

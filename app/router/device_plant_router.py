@@ -1,5 +1,9 @@
 from fastapi import APIRouter, Body, Request, status
-from schemas.device_plant import DevicePlantPartialUpdateSchema, DevicePlantSchema, DevicePlantUpdateSchema
+from schemas.device_plant import (
+    DevicePlantPartialUpdateSchema,
+    DevicePlantSchema,
+    DevicePlantUpdateSchema
+)
 from controller import device_plant_controller as controller
 
 device_plant = APIRouter()
