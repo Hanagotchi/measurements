@@ -1,11 +1,10 @@
-from fastapi import FastAPI, Request, Body
+from fastapi import FastAPI
 from database.database import SQLAlchemyClient
-from database.models.device_plant import DevicePlant
-from schemas.device_plant import DevicePlantSchema
 import logging
 from controller.calculator_controller import CalculatorController
 from schemas.schemas import Request as RequestSchema
 from service.calculator_service import CalculatorService
+from router import api_router
 
 app = FastAPI()
 service = CalculatorService()
@@ -43,7 +42,7 @@ async def calculator(request: RequestSchema):
     return controller.handle_sum(request)
 
 
-# Endpoint only for DB conection testing.
+""" # Endpoint only for DB conection testing.
 @app.post("/device-plant")
 async def add_new_device_plant(req: Request,
                                device_plant: DevicePlantSchema = Body(...)):
@@ -52,4 +51,6 @@ async def add_new_device_plant(req: Request,
         return req.app.database.find_device_plant(device_plant.id_device)
     except Exception as e:
         req.app.database.rollback()
-        raise e
+        raise e """
+
+app.include_router(api_router)
