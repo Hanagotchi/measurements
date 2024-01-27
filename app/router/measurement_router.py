@@ -2,7 +2,6 @@ from fastapi import APIRouter, Request, status
 from schemas.measurement import (
     MeasurementSavedSchema
 )
-from fastapi import Request, status
 from controller import measurement_controller as controller
 
 
