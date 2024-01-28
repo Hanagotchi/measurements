@@ -8,7 +8,7 @@ from exceptions.deviating_parameters import DeviatingParametersError
 from exceptions.empty_package import EmptyPackageError
 from exceptions.row_not_found import RowNotFoundError
 from pydantic import ValidationError
-from schemas.measurement_reading import MeasurementReadingSchema
+from schemas.measurement import MeasurementReadingSchema
 from sqlalchemy import MetaData
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
