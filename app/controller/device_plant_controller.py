@@ -10,13 +10,11 @@ import logging
 from psycopg2.errors import UniqueViolation
 from sqlalchemy.exc import PendingRollbackError, IntegrityError, NoResultFound
 
-
 logger = logging.getLogger("app")
 logger.setLevel("DEBUG")
 
 
 def withSQLExceptionsHandle(func):
-
     def handleSQLException(*args, **kwargs):
         try:
             return func(*args, **kwargs)
@@ -51,8 +49,8 @@ def withSQLExceptionsHandle(func):
 @withSQLExceptionsHandle
 def create_device_plant_relation(req: Request, device_plant: DevicePlantSchema):
     try:
-        req.app.database.add_new(DevicePlant.from_pydantic(device_plant))
-        return req.app.database.find_device_plant(device_plant.id_device)
+        req.app.database.add(DevicePlant.from_pydantic(device_plant))
+        return req.app.database.find_by_device_id(device_plant.id_device)
     except Exception as err:
         req.app.database.rollback()
         raise err
@@ -70,7 +68,17 @@ def update_device_plant(req: Request,
             device_plant_update_set.plant_type,
             device_plant_update_set.id_user,
         )
-        return req.app.database.find_device_plant(id_device)
+        return req.app.database.find_by_device_id(id_device)
     except Exception as err:
         req.app.database.rollback()
         raise err
+
+
+@withSQLExceptionsHandle
+def get_device_plant_relation(req: Request, id_plant: str):
+    return req.app.database.find_by_plant_id(id_plant)
+
+
+@withSQLExceptionsHandle
+def get_all_device_plant_relations(req: Request):
+    return req.app.database.find_all()
