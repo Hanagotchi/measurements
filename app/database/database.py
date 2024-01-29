@@ -12,7 +12,6 @@ load_dotenv()
 
 
 class SQLAlchemyClient():
-
     db_url = engine.URL.create(
         "postgresql",
         database=environ["POSTGRES_DB"],
@@ -54,8 +53,8 @@ class SQLAlchemyClient():
         result = self.session.scalars(query).one()
         return result
 
-    def find_all(self) -> List[DevicePlant]:
-        query = select(DevicePlant).limit(10)
+    def find_all(self, limit: int) -> List[DevicePlant]:
+        query = select(DevicePlant).limit(limit)
         result = self.session.scalars(query)
         return result
 

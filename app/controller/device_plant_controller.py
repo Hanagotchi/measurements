@@ -80,5 +80,5 @@ def get_device_plant_relation(req: Request, id_plant: str):
 
 
 @withSQLExceptionsHandle
-def get_all_device_plant_relations(req: Request):
-    return req.app.database.find_all()
+def get_all_device_plant_relations(req: Request, limit: int):
+    return req.app.database.find_all(limit)
