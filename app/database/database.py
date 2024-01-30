@@ -6,12 +6,12 @@ from typing import Optional, Union
 
 from database.models.device_plant import DevicePlant
 from database.models.measurement import Measurement
+from typing import List
 
 load_dotenv()
 
 
 class SQLAlchemyClient():
-
     db_url = engine.URL.create(
         "postgresql",
         database=environ["POSTGRES_DB"],
@@ -39,13 +39,23 @@ class SQLAlchemyClient():
         self.session.execute(query)
         self.session.commit()
 
-    def add_new(self, record: Union[DevicePlant, Measurement]):
+    def add(self, record: Union[DevicePlant, Measurement]):
         self.session.add(record)
         self.session.commit()
 
-    def find_device_plant(self, id_device: str) -> DevicePlant:
+    def find_by_device_id(self, id_device: str) -> DevicePlant:
         query = select(DevicePlant).where(DevicePlant.id_device == id_device)
         result = self.session.scalars(query).one()
+        return result
+
+    def find_by_plant_id(self, id_plant: str) -> DevicePlant:
+        query = select(DevicePlant).where(DevicePlant.id_plant == id_plant)
+        result = self.session.scalars(query).one()
+        return result
+
+    def find_all(self, limit: int) -> List[DevicePlant]:
+        query = select(DevicePlant).limit(limit)
+        result = self.session.scalars(query)
         return result
 
     def update_device_plant(self,

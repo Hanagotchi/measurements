@@ -41,7 +41,7 @@ class Consumer:
 
     def obtain_device_plant(self, measurement_from_rabbit):
         try:
-            dp = self.__sqlAlchemyClient.find_device_plant(
+            dp = self.__sqlAlchemyClient.find_by_device_id(
                 measurement_from_rabbit.id_device)
             logger.info(LoggerMessages.ROW_FOUND.format("DEVICE_PLANT", dp))
             return dp
@@ -77,7 +77,7 @@ class Consumer:
             watering=measurement_from_rabbit.watering
         )
         try:
-            self.__sqlAlchemyClient.add_new(measurement_from_db)
+            self.__sqlAlchemyClient.add(measurement_from_db)
 
             logger.info(LoggerMessages.NEW_ROW_INSERTED.format(
                 "MEASUREMENT", measurement_from_db))
