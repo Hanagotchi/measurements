@@ -5,9 +5,11 @@ import os
 class Middleware:
 
     def __init__(self):
-        self._connection = (pika.BlockingConnection
-                            (pika.ConnectionParameters(host=os.environ.get
-                                                       ("RABBITMQ_HOST"))))
+        rabbitmq_host = os.environ.get("RABBITMQ_HOST", "127.0.0.1")
+        rabbitmq_port = int(os.environ.get("RABBITMQ_PORT", 5672))
+        self._connection = pika.BlockingConnection(
+            pika.ConnectionParameters(host=rabbitmq_host, port=rabbitmq_port)
+        )
         self._channel = self._connection.channel()
         self._exit = False
         self._remake = False

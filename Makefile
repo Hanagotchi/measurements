@@ -2,7 +2,13 @@ default: docker-compose-up
 
 all:
 
-docker-image:
+create-network:
+	@if ! docker network inspect common_network >/dev/null 2>&1; then \
+		docker network create common_network; \
+	fi
+.PHONY: create-network
+
+docker-image: create-network
 	docker build -f ./Dockerfile -t "app:latest" .
 .PHONY: docker-image
 
