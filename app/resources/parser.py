@@ -1,7 +1,7 @@
 import pandas as pd
 from datetime import datetime
 
-file_path = 'app/resources/cleaned_plants_dataset.csv'
+file_path = 'resources/plants_dataset.csv'
 df = pd.read_csv(file_path)
 DELTA = 5
 
@@ -33,7 +33,7 @@ LIGHT_RULES_MAP = {
     1: (is_in_range, (200, 350)),
     2: (is_in_range, (200, 350)),
     3: (is_in_range, (75, 200)),
-    4: (is_in_range, (25, 30)),
+    4: (is_in_range, (25, 75)),
 }
 
 
@@ -43,11 +43,14 @@ def parse_values(string):
 
 
 # asumimos register: nombre_planta, humedad, luz, temperatura
-def rules(register):
-    plant_data = df[df['Botanical_Name'] == register["plant_name"]]
+def apply_rules(register, plant_name):
+    plant_data = df[df['Botanical_Name'] == plant_name]
     h_value = plant_data['H'].values[0]
     l_value = plant_data['L'].values[0]
     t_value = plant_data['T'].values[0]
+    print("h_value", h_value)
+    print("l_value", l_value)
+    print("t_value", t_value)
 
     parameters = []
 
@@ -55,20 +58,26 @@ def rules(register):
     h_values = parse_values(h_value)
     l_values = parse_values(l_value)
 
+    print("h_values", h_values)
+    print("l_values", l_values)
+    print("t_values", t_values)
+
     for t_value in t_values:
-        if apply_temperature_rule(t_value, register["temperature"]):
+        if apply_temperature_rule(t_value, register.temperature):
             parameters.append('temperature')
             break
 
     for l_value in l_values:
-        if apply_light_rule(l_value, register["light"]):
+        if apply_light_rule(l_value, register.light):
             parameters.append('light')
             break
 
     for h_value in h_values:
-        if apply_humidity_rule(l_value, register["humidity"]):
+        if apply_humidity_rule(h_value, register.humidity):
             parameters.append('humidity')
             break
+
+    return parameters
 
 
 def apply_temperature_rule(rule, register):
@@ -78,13 +87,13 @@ def apply_temperature_rule(rule, register):
 
 
 def apply_light_rule(rule, register):
-    rule_function, rule_values = HUMIDITY_RULES_MAP.get(rule, None)
+    rule_function, rule_values = LIGHT_RULES_MAP.get(rule, None)
     if rule_function:
         return not rule_function(register, *rule_values)
 
 
 def apply_humidity_rule(rule, register):
-    rule_function, rule_values = LIGHT_RULES_MAP.get(rule, None)
+    rule_function, rule_values = HUMIDITY_RULES_MAP.get(rule, None)
     if rule_function:
         return not rule_function(register, *rule_values)
 
