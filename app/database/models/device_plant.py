@@ -1,7 +1,7 @@
 from sqlalchemy import Integer, String, SmallInteger
 from sqlalchemy.orm import Mapped, mapped_column
-from app.database.models.base import Base
-from app.schemas.device_plant import DevicePlantSchema
+from database.models.base import Base
+from schemas.device_plant import DevicePlantSchema
 
 
 class DevicePlant(Base):
@@ -14,13 +14,9 @@ class DevicePlant(Base):
     id_user: Mapped[int] = mapped_column(Integer)
 
     def __repr__(self) -> str:
-        return format(
-            "DevicePlant(id_device={0}, id_plant={1}, plant_type={2}, id_user={3})",
-            self.id_device,
-            self.id_plant,
-            self.plant_type,
-            self.id_user,
-        )
+        return (f"DevicePlant(id_device={self.id_device}, "
+                f"id_plant={self.id_plant}, "
+                f"plant_type={self.plant_type}, id_user={self.id_user})")
 
     @classmethod
     def from_pydantic(cls, pydantic_obj: DevicePlantSchema):

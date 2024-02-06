@@ -1,7 +1,7 @@
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from app.database.models.number import Number
+from database.models.number import Number
 
 
 class CalculatorService:
