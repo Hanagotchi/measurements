@@ -81,22 +81,17 @@ def apply_rules(register, plant_name):
 
 def apply_temperature_rule(rule, register):
     rule_function, rule_values = TEMP_RULES_MAP.get(rule, None)
-    if rule_function:
-        print(rule_function(register, *rule_values))
-        return rule_function(register, *rule_values)
+    return rule_function(register, *rule_values)
 
 
 def apply_light_rule(rule, register):
     rule_function, rule_values = LIGHT_RULES_MAP.get(rule, None)
-    if rule_function:
-        return rule_function(register, *rule_values)
+    return rule_function(register, *rule_values)
 
 
 def apply_humidity_rule(rule, register):
     rule_function, rule_values = HUMIDITY_RULES_MAP.get(rule, None)
-    if rule_function:
-        print(rule_function(register, *rule_values))
-        return rule_function(register, *rule_values)
+    return rule_function(register, *rule_values)
 
 
 def is_daytime():
