@@ -7,14 +7,14 @@ DELTA = 5
 
 
 def is_in_range(value, min, max):
-    return value >= min and value <= max
+    return min <= value <= max
 
 
-def check_t_rule(register, day_value, night_value):
-    if not is_daytime():
-        return not is_in_range(register, day_value-DELTA, day_value+DELTA)
+def check_t_rule(register, night_value, day_value):
+    if is_daytime():
+        return is_in_range(register, day_value-DELTA, day_value+DELTA)
     else:
-        return not is_in_range(register, night_value-DELTA, night_value+DELTA)
+        return is_in_range(register, night_value-DELTA, night_value+DELTA)
 
 
 TEMP_RULES_MAP = {
@@ -48,9 +48,6 @@ def apply_rules(register, plant_name):
     h_value = plant_data['H'].values[0]
     l_value = plant_data['L'].values[0]
     t_value = plant_data['T'].values[0]
-    print("h_value", h_value)
-    print("l_value", l_value)
-    print("t_value", t_value)
 
     parameters = []
 
@@ -58,24 +55,26 @@ def apply_rules(register, plant_name):
     h_values = parse_values(h_value)
     l_values = parse_values(l_value)
 
-    print("h_values", h_values)
-    print("l_values", l_values)
-    print("t_values", t_values)
+    is_temperature_deviated = all(
+        not apply_temperature_rule(t_value, register.temperature)
+        for t_value in t_values
+    )
+    if is_temperature_deviated:
+        parameters.append('temperature')
 
-    for t_value in t_values:
-        if apply_temperature_rule(t_value, register.temperature):
-            parameters.append('temperature')
-            break
+    is_light_deviated = all(
+        not apply_light_rule(l_value, register.light)
+        for l_value in l_values
+    )
+    if is_light_deviated:
+        parameters.append('light')
 
-    for l_value in l_values:
-        if apply_light_rule(l_value, register.light):
-            parameters.append('light')
-            break
-
-    for h_value in h_values:
-        if apply_humidity_rule(h_value, register.humidity):
-            parameters.append('humidity')
-            break
+    is_humidity_deviated = all(
+        not apply_humidity_rule(h_value, register.humidity)
+        for h_value in h_values
+    )
+    if is_humidity_deviated:
+        parameters.append('humidity')
 
     return parameters
 
@@ -83,19 +82,21 @@ def apply_rules(register, plant_name):
 def apply_temperature_rule(rule, register):
     rule_function, rule_values = TEMP_RULES_MAP.get(rule, None)
     if rule_function:
+        print(rule_function(register, *rule_values))
         return rule_function(register, *rule_values)
 
 
 def apply_light_rule(rule, register):
     rule_function, rule_values = LIGHT_RULES_MAP.get(rule, None)
     if rule_function:
-        return not rule_function(register, *rule_values)
+        return rule_function(register, *rule_values)
 
 
 def apply_humidity_rule(rule, register):
     rule_function, rule_values = HUMIDITY_RULES_MAP.get(rule, None)
     if rule_function:
-        return not rule_function(register, *rule_values)
+        print(rule_function(register, *rule_values))
+        return rule_function(register, *rule_values)
 
 
 def is_daytime():

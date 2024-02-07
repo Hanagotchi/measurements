@@ -62,7 +62,6 @@ class Consumer:
         if len(deviated_parameters) > 0:
             raise DeviatedParametersError(deviated_parameters)
 
-
     def save_measurement(self, measurement_from_rabbit, device_plant):
         logger.info("TO DO - Step #5 from Ticket HAN-14")
 
