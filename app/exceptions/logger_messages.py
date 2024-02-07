@@ -9,3 +9,4 @@ class LoggerMessages:
     INVALID_INSERTION = "[ INVALID INSERTION ]"
     ROW_FOUND = "[ {} ] [ ROW FOUND ] [ {} ]"
     NEW_ROW_INSERTED = "[ {} ] [ NEW ROW INSERTED ] [ {} ]"
+    USER_NOTIFIED = "[ NOTIFICATION SENT TO USER {} ]"

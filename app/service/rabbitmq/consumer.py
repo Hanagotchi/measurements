@@ -52,8 +52,9 @@ class Consumer:
         logger.info("TO DO - Step #2 from Ticket HAN-14")
         # raise EmptyPackageError(["temperature", "humidity"])
 
-    def send_notification(self, id_user, message):
-        logger.info(f"[ ID_USER: {id_user} ]")
+    def send_notification(self, id_user, measurement, message):
+        logger.info(LoggerMessages.USER_NOTIFIED.format(id_user))
+        logger.info("Notification sent on ", measurement.time_stamp)
         logger.info("TO DO - For Step #2 & Step #4 from Ticket HAN-14")
 
     def apply_rules(self, measurement):
@@ -112,7 +113,7 @@ class Consumer:
             logger.warn(LoggerMessages.EMPTY_PACKAGE_RECEIVED)
             logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
 
-            self.send_notification(device_plant.id_user, err)
+            self.send_notification(device_plant.id_user, measurement, err)
 
             measurement = None  # For not saving the measurement.
         except DeviatedParametersError as err:
@@ -121,7 +122,7 @@ class Consumer:
 
             # TO DO - Ticket HAN-17 & Step #4 from Ticket HAN-14
             # parameters = err.parameters  # List of deviating parameters.
-            self.send_notification(device_plant.id_user, err)
+            self.send_notification(device_plant.id_user, measurement, err)
 
         if device_plant is not None and measurement is not None:
             try:
