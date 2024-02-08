@@ -82,3 +82,15 @@ def get_device_plant_relation(req: Request, id_plant: str):
 @withSQLExceptionsHandle
 def get_all_device_plant_relations(req: Request, limit: int):
     return req.app.database.find_all(limit)
+
+
+@withSQLExceptionsHandle
+def delete_device_plant_relation_by_id_device(req: Request, id_device: str):
+    result_rowcount = req.app.database.delete_by_device_id(id_device)
+    if result_rowcount == 0:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="No device-plant relation found with the given device id"
+        )
+
+    return {"message": "Device-plant relation deleted successfully"}

@@ -83,3 +83,16 @@ class SQLAlchemyClient():
         result: Measurement = self.session.scalars(query).one()
 
         return result
+
+    def delete_by_device_id(self, id_device: str) -> int:
+        """
+        Delete a device-plant relation by device id
+        Args:
+            id_device (str): device id
+        Returns:
+            int: number of rows affected. 0 if no rows were affected
+        """
+        query = delete(DevicePlant).where(DevicePlant.id_device == id_device)
+        result = self.session.execute(query)
+        self.session.commit()
+        return result.rowcount

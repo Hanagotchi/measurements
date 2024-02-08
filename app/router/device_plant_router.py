@@ -55,3 +55,11 @@ async def get_device_plant(req: Request,
     if id_plant is None:
         return controller.get_all_device_plant_relations(req, limit)
     return [controller.get_device_plant_relation(req, id_plant)]
+
+
+@device_plant.delete(
+    "/{id_device}",
+    status_code=status.HTTP_200_OK
+)
+async def delete_device_plant_relation_by_id_device(req: Request, id_device: str):
+    return controller.delete_device_plant_relation_by_id_device(req, id_device)
