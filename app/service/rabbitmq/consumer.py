@@ -54,8 +54,11 @@ class Consumer:
 
     def send_notification(self, id_user, measurement, error, details):
         logger.info(LoggerMessages.USER_NOTIFIED.format(id_user))
-        logger.info("New notification: {}: {} sent on {}".format(error, details, measurement.time_stamp))
-
+        logger.info(
+            "New notification: {}: {} sent on {}".format(
+                error, details, measurement.time_stamp
+            )
+        )
 
     def apply_rules(self, measurement):
         # TODO: FIND PLANT TYPE NAME GIVEN PLANT TYPE
