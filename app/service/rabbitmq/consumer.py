@@ -54,7 +54,6 @@ class Consumer:
 
     def send_notification(self, id_user, message):
         logger.info(f"[ ID_USER: {id_user} ]")
-        logger.info("TO DO - For Step #2 & Step #4 from Ticket HAN-14")
 
     def apply_rules(self, measurement):
         # TODO: FIND PLANT TYPE NAME GIVEN PLANT TYPE
@@ -63,8 +62,6 @@ class Consumer:
             raise DeviatedParametersError(deviated_parameters)
 
     def save_measurement(self, measurement_from_rabbit, device_plant):
-        logger.info("TO DO - Step #5 from Ticket HAN-14")
-
         measurement_from_db = Measurement(
             id_plant=device_plant.id_plant,
             plant_type=device_plant.plant_type,
@@ -119,8 +116,6 @@ class Consumer:
             logger.warn(LoggerMessages.DEVIATING_PARAMETERS)
             logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
 
-            # TO DO - Ticket HAN-17 & Step #4 from Ticket HAN-14
-            # parameters = err.parameters  # List of deviating parameters.
             self.send_notification(device_plant.id_user, err)
 
         if device_plant is not None and measurement is not None:
