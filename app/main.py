@@ -1,3 +1,4 @@
+from pathlib import Path
 from fastapi import FastAPI
 from database.database import SQLAlchemyClient
 import logging
@@ -5,8 +6,14 @@ from controller.calculator_controller import CalculatorController
 from schemas.schemas import Request as RequestSchema
 from service.calculator_service import CalculatorService
 from router import api_router
+from swagger_ui import api_doc
+#from os import path
 
 app = FastAPI()
+
+# swagger_config_path = path.join(path.dirname(path.abspath(__file__)), '../docs/endpoints.yaml')
+api_doc(app, config_path='../docs/endpoints.yaml', url_prefix='/api/doc', title='API doc')
+
 service = CalculatorService()
 controller = CalculatorController(service)
 
@@ -54,3 +61,12 @@ async def add_new_device_plant(req: Request,
         raise e """
 
 app.include_router(api_router)
+
+
+
+
+
+
+
+
+

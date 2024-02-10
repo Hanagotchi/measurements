@@ -1,0 +1,346 @@
+openapi: "3.0.0"
+servers:
+  - url: 'http://localhost:8080/'
+info:
+  description: API encargada de gestionar las mediciones obtenidas con los sensores de los usuarios
+  title: Measurements Service
+
+tags:
+  - name: DevicePlant
+    description: Representación de los sensores del usuario
+  - name: Measurement
+    description: Mediciones registradas con los sensores
+
+
+# Estos paths se obtuvieron mediante la /docs que genera FastAPI en http://localhost:8080/openapi.json
+# A ese .JSON se lo convirtio a .YAML con la ayuda de PachGPT :)
+paths:
+  /device-plant:
+    post:
+      tags:
+        - DevicePlant
+      summary: Create Device Plant Relation
+      operationId: create_device_plant_relation_device_plant_post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DevicePlantSchema'
+      responses:
+        '201':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DevicePlantSchema'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    get:
+      tags:
+        - DevicePlant
+      summary: Get Device Plant
+      operationId: get_device_plant_device_plant_get
+      parameters:
+        - name: id_plant
+          in: query
+          required: false
+          schema:
+            type: string
+            title: Id Plant
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 10
+            title: Limit
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DevicePlantSchema'
+                title: Response Get Device Plant Device Plant Get
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /device-plant/{id_device}:
+    patch:
+      tags:
+        - DevicePlant
+      summary: Update Fields In Device Plant
+      operationId: update_fields_in_device_plant_device_plant__id_device__patch
+      parameters:
+        - name: id_device
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id Device
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DevicePlantPartialUpdateSchema'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DevicePlantSchema'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    put:
+      tags:
+        - DevicePlant
+      summary: Update All In Device Plant
+      operationId: update_all_in_device_plant_device_plant__id_device__put
+      parameters:
+        - name: id_device
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id Device
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DevicePlantUpdateSchema'
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DevicePlantSchema'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      tags:
+        - DevicePlant
+      summary: Delete Device Plant Relation By Id Device
+      operationId: delete_device_plant_relation_by_id_device_device_plant__id_device__delete
+      parameters:
+        - name: id_device
+          in: path
+          required: true
+          schema:
+            type: string
+            title: Id Device
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /measurement/{id_plant}/last:
+    get:
+      tags:
+        - Measurement
+      summary: Last Measurement Made By Plant
+      operationId: last_measurement_made_by_plant_measurement__id_plant__last_get
+      parameters:
+        - name: id_plant
+          in: path
+          required: true
+          schema:
+            type: integer
+            title: Id Plant
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeasurementSavedSchema'
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+components:
+  schemas:
+    DevicePlantPartialUpdateSchema:
+      properties:
+        id_plant:
+          anyOf:
+            - type: integer
+              exclusiveMinimum: 0.0
+            - type: null
+          title: Id Plant
+        plant_type:
+          anyOf:
+            - type: integer
+              exclusiveMinimum: 0.0
+            - type: null
+          title: Plant Type
+        id_user:
+          anyOf:
+            - type: integer
+              exclusiveMinimum: 0.0
+            - type: null
+          title: Id User
+      type: object
+      title: DevicePlantPartialUpdateSchema
+    DevicePlantSchema:
+      properties:
+        id_device:
+          type: string
+          title: Id Device
+        id_plant:
+          type: integer
+          exclusiveMinimum: 0.0
+          title: Id Plant
+        plant_type:
+          type: integer
+          exclusiveMinimum: 0.0
+          title: Plant Type
+        id_user:
+          type: integer
+          exclusiveMinimum: 0.0
+          title: Id User
+      type: object
+      required:
+        - id_device
+        - id_plant
+        - plant_type
+        - id_user
+      title: DevicePlantSchema
+    DevicePlantUpdateSchema:
+      properties:
+        id_plant:
+          type: integer
+          exclusiveMinimum: 0.0
+          title: Id Plant
+        plant_type:
+          type: integer
+          exclusiveMinimum: 0.0
+          title: Plant Type
+        id_user:
+          type: integer
+          exclusiveMinimum: 0.0
+          title: Id User
+      type: object
+      required:
+        - id_plant
+        - plant_type
+        - id_user
+      title: DevicePlantUpdateSchema
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    MeasurementSavedSchema:
+      properties:
+        id:
+          type: integer
+          title: Id
+        id_plant:
+          type: integer
+          title: Id Plant
+        plant_type:
+          type: integer
+          title: Plant Type
+        time_stamp:
+          type: string
+          title: Time Stamp
+        temperature:
+          anyOf:
+            - type: integer
+            - type: null
+          title: Temperature
+        humidity:
+          anyOf:
+            - type: integer
+            - type: null
+          title: Humidity
+        light:
+          anyOf:
+            - type: integer
+            - type: null
+          title: Light
+        watering:
+          anyOf:
+            - type: integer
+            - type: null
+          title: Watering
+      type: object
+      required:
+        - id
+        - id_plant
+        - plant_type
+        - time_stamp
+        - temperature
+        - humidity
+        - light
+        - watering
+      title: MeasurementSavedSchema
+    Request:
+      properties:
+        number1:
+          type: integer
+          title: Number1
+        number2:
+          type: integer
+          title: Number2
+      type: object
+      required:
+        - number1
+        - number2
+      title: Request
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+              - type: string
+              - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+      type: object
+      required:
+        - loc
+        - msg
+        - type
+      title: ValidationError
