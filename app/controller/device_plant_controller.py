@@ -1,5 +1,6 @@
-from typing import Union
-from fastapi import Request, status, HTTPException
+from fastapi.responses import JSONResponse
+from typing import Optional, Union
+from fastapi import Request, status, HTTPException, Response
 from database.models.device_plant import DevicePlant
 from schemas.device_plant import (
     DevicePlantPartialUpdateSchema,
@@ -9,6 +10,7 @@ from schemas.device_plant import (
 import logging
 from psycopg2.errors import UniqueViolation
 from sqlalchemy.exc import PendingRollbackError, IntegrityError, NoResultFound
+from fastapi.responses import JSONResponse
 
 logger = logging.getLogger("app")
 logger.setLevel("DEBUG")
@@ -85,12 +87,22 @@ def get_all_device_plant_relations(req: Request, limit: int):
 
 
 @withSQLExceptionsHandle
-def delete_device_plant_relation_by_id_device(req: Request, id_device: str):
-    result_rowcount = req.app.database.delete_by_device_id(id_device)
-    if result_rowcount == 0:
+def delete_device_plant_relation(req: Request, response: Response, id_device: Optional[str] = None, plant_id: Optional[str] = None):
+    if (id_device is None and plant_id is None) or (id_device and plant_id):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No device-plant relation found with the given device id"
+            detail="No identifier was provided, or both identifiers were provided."
         )
-
-    return {"message": "Device-plant relation deleted successfully"}
+        
+    result_rowcount = 0
+    if id_device is not None:
+        result_rowcount = req.app.database.delete_by_field("id_device", id_device)
+    else:
+        result_rowcount = req.app.database.delete_by_field("id_plant", plant_id)
+    
+    
+    if result_rowcount == 0:
+        response.status_code = status.HTTP_204_NO_CONTENT
+        return # EMPTY RESPONSE! RESOURCE DID NOT EXIST
+    else:
+        return "Device-plant relation deleted successfully"

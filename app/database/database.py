@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, select, delete, engine
+from sqlalchemy import create_engine, select, delete, engine, column
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 from os import environ
@@ -84,15 +84,8 @@ class SQLAlchemyClient():
 
         return result
 
-    def delete_by_device_id(self, id_device: str) -> int:
-        """
-        Delete a device-plant relation by device id
-        Args:
-            id_device (str): device id
-        Returns:
-            int: number of rows affected. 0 if no rows were affected
-        """
-        query = delete(DevicePlant).where(DevicePlant.id_device == id_device)
+    def delete_by_field(self, field: str, value: str) -> int:
+        query = delete(DevicePlant).where(column(field) == value)
         result = self.session.execute(query)
         self.session.commit()
         return result.rowcount
