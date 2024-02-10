@@ -1,6 +1,6 @@
 from typing import List, Optional
 
-from fastapi import APIRouter, Body, Request, status, Query,Response
+from fastapi import APIRouter, Body, Response, Request, status, Query
 from schemas.device_plant import (
     DevicePlantPartialUpdateSchema,
     DevicePlantSchema,
@@ -61,5 +61,7 @@ async def get_device_plant(req: Request,
     "/",
     status_code=status.HTTP_200_OK
 )
-async def delete_device_plant_relation(req: Request, response: Response, id_device: Optional[str] = None, plant_id: Optional[str] = None):
+async def delete_device_plant_relation(response: Response, req: Request,
+                                       id_device: Optional[str] = None,
+                                       plant_id: Optional[str] = None):
     return controller.delete_device_plant_relation(req, response, id_device, plant_id)
