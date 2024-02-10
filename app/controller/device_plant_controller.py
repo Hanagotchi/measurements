@@ -1,4 +1,5 @@
 from typing import Optional, Union
+
 from fastapi import Request, status, HTTPException, Response
 from database.models.device_plant import DevicePlant
 from schemas.device_plant import (
@@ -59,7 +60,8 @@ def update_device_plant(
     req: Request,
     id_device: str,
     device_plant_update_set: Union[
-        DevicePlantUpdateSchema, DevicePlantPartialUpdateSchema
+        DevicePlantUpdateSchema, 
+        DevicePlantPartialUpdateSchema
     ],
 ):
     try:
