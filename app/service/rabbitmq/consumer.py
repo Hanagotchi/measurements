@@ -4,7 +4,7 @@ from exceptions.logger_messages import LoggerMessages
 import pydantic
 import logging
 from exceptions.invalid_insertion import InvalidInsertionError
-from exceptions.deviating_parameters import DeviatingParametersError
+from exceptions.deviating_parameters import DeviatedParametersError
 from exceptions.empty_package import EmptyPackageError
 from exceptions.row_not_found import RowNotFoundError
 from pydantic import ValidationError
@@ -16,17 +16,16 @@ from sqlalchemy.ext.declarative import declarative_base
 from ..common.middleware import Middleware
 from database.models.measurement import Measurement
 from database.database import SQLAlchemyClient
+from resources.parser import apply_rules
 
 Base = declarative_base(metadata=MetaData(schema='dev'))
 
 logger = logging.getLogger("rabbitmq_consumer")
-
+logging.getLogger("pika").setLevel(logging.WARNING)
 
 dbUrl = os.environ.get("DATABASE_URL")
 engine = create_engine(dbUrl, echo=True, future=True)
 session = Session(engine)
-
-# logger_messages.py
 
 
 class Consumer:
@@ -55,18 +54,14 @@ class Consumer:
 
     def send_notification(self, id_user, message):
         logger.info(f"[ ID_USER: {id_user} ]")
-        logger.info("TO DO - For Step #2 & Step #4 from Ticket HAN-14")
 
-    def apply_rules(self, measurement_from_rabbit, device_plant):
-        logger.info("TO DO - Step #3 from Ticket HAN-14")
-        logger.info("TO DO - Step #4 from Ticket HAN-14")
+    def apply_rules(self, measurement):
+        # TODO: FIND PLANT TYPE NAME GIVEN PLANT TYPE
+        deviated_parameters = apply_rules(measurement, "Acorus calamus")
+        if len(deviated_parameters) > 0:
+            raise DeviatedParametersError(deviated_parameters)
 
-        # ...This is an example, the exception can be much more personalized...
-        # raise DeviatingParametersError(["temperature", "humidity"])
     def save_measurement(self, measurement_from_rabbit, device_plant):
-        logger.info("TO DO - Step #5 from Ticket HAN-14")
-
-        # Indentation fixed (4 spaces)
         measurement_from_db = Measurement(
             id_plant=device_plant.id_plant,
             plant_type=device_plant.plant_type,
@@ -98,7 +93,7 @@ class Consumer:
 
             device_plant = self.obtain_device_plant(measurement)
             self.check_package(measurement)
-            self.apply_rules(measurement, device_plant)
+            self.apply_rules(measurement)
         except (pydantic.errors.PydanticUserError,
                 ValidationError,
                 json.JSONDecodeError) as err:
@@ -117,12 +112,10 @@ class Consumer:
             self.send_notification(device_plant.id_user, err)
 
             measurement = None  # For not saving the measurement.
-        except DeviatingParametersError as err:
+        except DeviatedParametersError as err:
             logger.warn(LoggerMessages.DEVIATING_PARAMETERS)
             logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
 
-            # TO DO - Ticket HAN-17 & Step #4 from Ticket HAN-14
-            # parameters = err.parameters  # List of deviating parameters.
             self.send_notification(device_plant.id_user, err)
 
         if device_plant is not None and measurement is not None:

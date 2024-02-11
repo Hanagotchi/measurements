@@ -3,6 +3,7 @@ uvicorn==0.25.0
 python-dotenv
 flake8
 psycopg2
+pandas
 
 ### RabbitMQ ###
 pika
