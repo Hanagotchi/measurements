@@ -12,9 +12,9 @@ def is_in_range(value, min, max):
 
 def check_t_rule(register, night_value, day_value):
     if is_daytime():
-        return is_in_range(register, day_value-DELTA, day_value+DELTA)
+        return is_in_range(register, day_value - DELTA, day_value + DELTA)
     else:
-        return is_in_range(register, night_value-DELTA, night_value+DELTA)
+        return is_in_range(register, night_value - DELTA, night_value + DELTA)
 
 
 TEMP_RULES_MAP = {
@@ -41,6 +41,7 @@ WATERING_RULES_MAP = {
     2: (is_in_range, (40, 70)),
     3: (is_in_range, (10, 40)),
 }
+
 
 def parse_values(string):
     values = string.split('-')
