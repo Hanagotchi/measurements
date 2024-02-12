@@ -67,8 +67,6 @@ class Consumer:
             raise DeviatedParametersError(deviated_parameters)
 
     def save_measurement(self, measurement_from_rabbit, device_plant):
-        logger.info("TO DO - Step #5 from Ticket HAN-14")
-
         measurement_from_db = Measurement(
             id_plant=device_plant.id_plant,
             plant_type=device_plant.plant_type,
