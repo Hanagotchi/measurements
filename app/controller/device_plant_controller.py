@@ -1,4 +1,4 @@
-from typing import Optional, Union
+from typing import Literal, Union
 from fastapi import Response, Request, status, HTTPException
 from database.models.device_plant import DevicePlant
 from schemas.device_plant import (
@@ -9,6 +9,7 @@ from schemas.device_plant import (
 import logging
 from psycopg2.errors import UniqueViolation
 from sqlalchemy.exc import PendingRollbackError, IntegrityError, NoResultFound
+from fastapi.responses import JSONResponse
 
 logger = logging.getLogger("app")
 logger.setLevel("DEBUG")
@@ -23,20 +24,17 @@ def withSQLExceptionsHandle(func):
                 parsed_error = err.orig.pgerror.split("\n")
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail={"error": parsed_error[0],
-                            "detail": parsed_error[1]},
+                    detail={"error": parsed_error[0], "detail": parsed_error[1]},
                 )
 
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=format(
-                    err)
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=format(err)
             )
 
         except PendingRollbackError as err:
             logger.warning(format(err))
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=format(
-                    err)
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=format(err)
             )
 
         except NoResultFound as err:
@@ -62,8 +60,7 @@ def update_device_plant(
     req: Request,
     id_device: str,
     device_plant_update_set: Union[
-        DevicePlantUpdateSchema,
-        DevicePlantPartialUpdateSchema
+        DevicePlantUpdateSchema, DevicePlantPartialUpdateSchema
     ],
 ):
     try:
@@ -91,27 +88,19 @@ def get_all_device_plant_relations(req: Request, limit: int):
 
 @withSQLExceptionsHandle
 def delete_device_plant_relation(
-    req: Request,
-    response: Response,
-    id_device: Optional[str] = None,
-    id_plant: Optional[str] = None,
+    req: Request, response: Response, type_id: Literal["id_device", "id_plant"], id: str
 ):
-    if (id_device is None and id_plant is None) or (id_device and id_plant):
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="No identifier was provided, or both identifiers were provided.",
-        )
-
     result_rowcount = 0
-    if id_device is not None:
-        result_rowcount = req.app.database.delete_by_field(
-            "id_device", id_device)
+    if type_id == "id_device":
+        result_rowcount = req.app.database.delete_by_field(type_id, id)
     else:
-        result_rowcount = req.app.database.delete_by_field(
-            "id_plant", id_plant)
+        result_rowcount = req.app.database.delete_by_field(type_id, id)
 
     if result_rowcount == 0:
         response.status_code = status.HTTP_204_NO_CONTENT
         return  # EMPTY RESPONSE! RESOURCE DID NOT EXIST
     else:
-        return "Device-plant relation deleted successfully"
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content={"deleted": "Device-plant relation deleted successfully"},
+        )

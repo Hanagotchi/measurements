@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Literal
 
 from fastapi import APIRouter, Body, Response, Request, status, Query
 from schemas.device_plant import (
@@ -58,10 +58,10 @@ async def get_device_plant(req: Request,
 
 
 @device_plant.delete(
-    "/",
+    "/{id}",
     status_code=status.HTTP_200_OK
 )
 async def delete_device_plant_relation(response: Response, req: Request,
-                                       id_device: Optional[str] = None,
-                                       plant_id: Optional[str] = None):
-    return controller.delete_device_plant_relation(req, response, id_device, plant_id)
+                                       type_id: Literal["id_device", "id_plant"],
+                                       id: str):
+    return controller.delete_device_plant_relation(req, response, type_id, id)
