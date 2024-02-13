@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, select, delete, engine
+from sqlalchemy import create_engine, select, delete, engine, column
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 from os import environ
@@ -83,3 +83,9 @@ class SQLAlchemyClient():
         result: Measurement = self.session.scalars(query).one()
 
         return result
+
+    def delete_by_field(self, field: str, value: str) -> int:
+        query = delete(DevicePlant).where(column(field) == value)
+        result = self.session.execute(query)
+        self.session.commit()
+        return result.rowcount
