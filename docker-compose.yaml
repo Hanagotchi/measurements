@@ -52,7 +52,9 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./app/service/sql:/docker-entrypoint-initdb.d
+      - ./app/service/sql/init_database_measurements.sh:/docker-entrypoint-initdb.d/init_database_measurements.sh
+      - ./app/service/sql/init_table_device_plant.sh:/docker-entrypoint-initdb.d/init_table_device_plant.sh
+      - ./app/service/sql/init_table_measurements.sh:/docker-entrypoint-initdb.d/init_table_measurements.sh
     healthcheck:
       test:
         [
