@@ -10,10 +10,10 @@ import logging
 from psycopg2.errors import UniqueViolation
 from sqlalchemy.exc import PendingRollbackError, IntegrityError, NoResultFound
 from fastapi.responses import JSONResponse
+from service.plant_service import PlantService
 
 logger = logging.getLogger("app")
 logger.setLevel("DEBUG")
-
 
 def withSQLExceptionsHandle(func):
     def handleSQLException(*args, **kwargs):
@@ -46,8 +46,16 @@ def withSQLExceptionsHandle(func):
 
 
 @withSQLExceptionsHandle
-def create_device_plant_relation(req: Request, device_plant: DevicePlantSchema):
+async def create_device_plant_relation(req: Request, device_plant: DevicePlantSchema):
     try:
+        plant = await PlantService.get_plant(device_plant.id_plant)
+        
+        if not plant:
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content={"plant_id": f"Could not found any plant with id {device_plant.id_plant}"},
+            )
+
         req.app.database.add(DevicePlant.from_pydantic(device_plant))
         return req.app.database.find_by_device_id(device_plant.id_device)
     except Exception as err:

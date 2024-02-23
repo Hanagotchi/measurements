@@ -18,7 +18,7 @@ device_plant = APIRouter()
 )
 async def create_device_plant_relation(req: Request,
                                        device_plant: DevicePlantSchema = Body(...)):
-    return controller.create_device_plant_relation(req, device_plant)
+    return await controller.create_device_plant_relation(req, device_plant)
 
 
 @device_plant.patch(

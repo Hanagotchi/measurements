@@ -14,7 +14,7 @@ load_dotenv()
 class SQLAlchemyClient():
     db_url = engine.URL.create(
         "postgresql",
-        database=environ["MEASUREMENTS_DB"],
+        database=environ["POSTGRES_DB"],
         username=environ["POSTGRES_USER"],
         password=environ["POSTGRES_PASSWORD"],
         host=environ["POSTGRES_HOST"],
