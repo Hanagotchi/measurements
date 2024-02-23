@@ -51,7 +51,7 @@ async def update_all_in_device_plant(id_device: str,
     response_model=List[DevicePlantSchema]
 )
 async def get_device_plant(req: Request,
-                           id_plant: str = Query(None),
+                           id_plant: int = Query(None),
                            limit: int = Query(10)):
     if id_plant is None:
         return controller.get_all_device_plant_relations(req, limit)
