@@ -2,6 +2,7 @@ from typing import Literal, Union
 from fastapi import Response, Request, status, HTTPException
 from database.models.device_plant import DevicePlant
 from schemas.device_plant import (
+    DevicePlantCreateSchema,
     DevicePlantPartialUpdateSchema,
     DevicePlantSchema,
     DevicePlantUpdateSchema,
@@ -16,19 +17,15 @@ logger = logging.getLogger("app")
 logger.setLevel("DEBUG")
 
 def withSQLExceptionsHandle(func):
-    def handleSQLException(*args, **kwargs):
+    async def handleSQLException(*args, **kwargs):
         try:
-            return func(*args, **kwargs)
+            return await func(*args, **kwargs)
+        
         except IntegrityError as err:
-            if isinstance(err.orig, UniqueViolation):
-                parsed_error = err.orig.pgerror.split("\n")
-                raise HTTPException(
-                    status_code=status.HTTP_400_BAD_REQUEST,
-                    detail={"error": parsed_error[0], "detail": parsed_error[1]},
-                )
-
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=format(err)
+            parsed_error = err.orig.pgerror.split("\n")[1]
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content=parsed_error,
             )
 
         except PendingRollbackError as err:
@@ -41,12 +38,18 @@ def withSQLExceptionsHandle(func):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST, detail=format(err)
             )
+        
+        except Exception as err:
+            logger.error(format(err))
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=format(err)
+            )
 
     return handleSQLException
 
 
 @withSQLExceptionsHandle
-async def create_device_plant_relation(req: Request, device_plant: DevicePlantSchema):
+async def create_device_plant_relation(req: Request, device_plant: DevicePlantCreateSchema):
     try:
         plant = await PlantService.get_plant(device_plant.id_plant)
         
@@ -55,9 +58,16 @@ async def create_device_plant_relation(req: Request, device_plant: DevicePlantSc
                 status_code=status.HTTP_400_BAD_REQUEST,
                 content={"plant_id": f"Could not found any plant with id {device_plant.id_plant}"},
             )
+        
+        device_plant = DevicePlant(
+            id_device=device_plant.id_device,
+            id_plant=device_plant.id_plant,
+            plant_type=1,
+            id_user=plant.id_user,
+        )
 
-        req.app.database.add(DevicePlant.from_pydantic(device_plant))
-        return req.app.database.find_by_device_id(device_plant.id_device)
+        req.app.database.add(device_plant)
+        return device_plant
     except Exception as err:
         req.app.database.rollback()
         raise err

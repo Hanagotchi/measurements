@@ -1,9 +1,19 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 
-class DevicePlantSchema(BaseModel):
+class DevicePlantCreateSchema(BaseModel):
     id_device: str = Field(...)
     id_plant: int = Field(..., gt=0)
+
+    class Config:
+        schema_extra = {
+            "example": {
+                "id_device": "1",
+                "id_plant": 1,
+            }
+        }
+
+class DevicePlantSchema(DevicePlantCreateSchema):
     plant_type: int = Field(..., gt=0)
     id_user: int = Field(..., gt=0)
 

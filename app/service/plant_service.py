@@ -21,9 +21,9 @@ class PlantService():
         try:
             async with AsyncClient() as client:
                 response = await client.get(PLANT_SERVICE_URL + f"/plants/{plant_id}")
-                print(response)
+                print(response.json())
                 if response.status_code == codes.OK:
-                    return response.json()
+                    return PlantSchema(**response.json())
                 elif response.status_code == codes.NOT_FOUND:
                     return None
                 else:

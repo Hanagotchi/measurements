@@ -2,6 +2,7 @@ from typing import List, Literal
 
 from fastapi import APIRouter, Body, Response, Request, status, Query
 from schemas.device_plant import (
+    DevicePlantCreateSchema,
     DevicePlantPartialUpdateSchema,
     DevicePlantSchema,
     DevicePlantUpdateSchema
@@ -17,7 +18,7 @@ device_plant = APIRouter()
     response_model=DevicePlantSchema
 )
 async def create_device_plant_relation(req: Request,
-                                       device_plant: DevicePlantSchema = Body(...)):
+                                       device_plant: DevicePlantCreateSchema = Body(...)):
     return await controller.create_device_plant_relation(req, device_plant)
 
 
