@@ -71,17 +71,23 @@ async def create_device_plant_relation(req: Request, device_plant: DevicePlantCr
                 content={"plant_id": f"Could not found any plant with id {device_plant.id_plant}"},
             )
         
+        plant_type = await PlantService.get_plant_type(plant.scientific_name)
+        if not plant_type:
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content={"scientific_name": f"Could not found any plant type with scientific name {plant.scientific_name}"},
+            )
+        
         device_plant = DevicePlant(
             id_device=device_plant.id_device,
             id_plant=device_plant.id_plant,
-            plant_type=0,
+            plant_type=plant_type.id,
             id_user=plant.id_user,
         )
         req.app.database.add(device_plant)
         return device_plant
     
     except Exception as err:
-        print("Holaaaaaaaaaaaaaa")
         req.app.database.rollback()
         raise err
 
@@ -104,12 +110,18 @@ async def update_device_plant(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 content={"plant_id": f"Could not found any plant with id {device_plant_update_set.id_plant}"},
             )
+        
+        plant_type = await PlantService.get_plant_type(plant.scientific_name)
+        if not plant_type:
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content={"scientific_name": f"Could not found any plant type with scientific name {plant.scientific_name}"},
+            )
 
         req.app.database.update_device_plant(
             id_device,
             plant.id,
-            #plant.plant_type,
-            0,
+            plant_type.id,
             plant.id_user,
         )
         return req.app.database.find_by_device_id(id_device)
