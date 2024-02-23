@@ -31,7 +31,7 @@ async def update_fields_in_device_plant(id_device: str,
                                         req: Request,
                                         device_plant_update_set:
                                         DevicePlantPartialUpdateSchema = Body(...)):
-    return controller.update_device_plant(req, id_device, device_plant_update_set)
+    return await controller.update_device_plant(req, id_device, device_plant_update_set)
 
 
 @device_plant.put(
@@ -42,7 +42,7 @@ async def update_fields_in_device_plant(id_device: str,
 async def update_all_in_device_plant(id_device: str,
                                      req: Request,
                                      device_plant: DevicePlantUpdateSchema = Body(...)):
-    return controller.update_device_plant(req, id_device, device_plant)
+    return await controller.update_device_plant(req, id_device, device_plant)
 
 
 @device_plant.get(

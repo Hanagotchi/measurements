@@ -74,7 +74,7 @@ async def create_device_plant_relation(req: Request, device_plant: DevicePlantCr
         device_plant = DevicePlant(
             id_device=device_plant.id_device,
             id_plant=device_plant.id_plant,
-            plant_type=1,
+            plant_type=0,
             id_user=plant.id_user,
         )
         req.app.database.add(device_plant)
@@ -86,8 +86,8 @@ async def create_device_plant_relation(req: Request, device_plant: DevicePlantCr
         raise err
 
 
-@withSQLExceptionsHandle(async_mode=False)
-def update_device_plant(
+@withSQLExceptionsHandle(async_mode=True)
+async def update_device_plant(
     req: Request,
     id_device: str,
     device_plant_update_set: Union[
@@ -95,11 +95,22 @@ def update_device_plant(
     ],
 ):
     try:
+        if not device_plant_update_set.id_plant:
+            return req.app.database.find_by_device_id(id_device)
+
+        plant = await PlantService.get_plant(device_plant_update_set.id_plant)
+        if not plant:
+            return JSONResponse(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                content={"plant_id": f"Could not found any plant with id {device_plant_update_set.id_plant}"},
+            )
+
         req.app.database.update_device_plant(
             id_device,
-            device_plant_update_set.id_plant,
-            device_plant_update_set.plant_type,
-            device_plant_update_set.id_user,
+            plant.id,
+            #plant.plant_type,
+            0,
+            plant.id_user,
         )
         return req.app.database.find_by_device_id(id_device)
     except Exception as err:
