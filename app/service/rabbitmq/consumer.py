@@ -1,4 +1,3 @@
-import os
 import json
 from exceptions.logger_messages import LoggerMessages
 import pydantic

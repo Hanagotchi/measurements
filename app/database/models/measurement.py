@@ -4,6 +4,7 @@ from typing import Optional
 from database.models.base import Base
 from os import environ
 
+
 class Measurement(Base):
     __tablename__ = "measurements"
     __table_args__ = {'schema': environ.get("MEASUREMENTS_SCHEMA", "dev")}

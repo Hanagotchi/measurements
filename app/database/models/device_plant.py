@@ -4,6 +4,7 @@ from database.models.base import Base
 from schemas.device_plant import DevicePlantSchema
 from os import environ
 
+
 class DevicePlant(Base):
     __tablename__ = "device_plant"
     __table_args__ = {'schema': environ.get("MEASUREMENTS_SCHEMA", "dev")}
