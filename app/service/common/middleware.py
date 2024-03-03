@@ -7,7 +7,7 @@ class Middleware:
     def __init__(self):
         self._connection = pika.BlockingConnection(
             parameters=pika.URLParameters(
-                os.environ.get("RABBITMQ_URL", "amqp://rabbitmq:5672")))
+                os.environ.get("CLOUDAMQP_URL", "amqp://rabbitmq:5672")))
         self._channel = self._connection.channel()
         self._exit = False
         self._remake = False
