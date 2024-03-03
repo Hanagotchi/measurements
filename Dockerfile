@@ -10,8 +10,8 @@ COPY requirements.txt ./
 
 RUN pip install -r requirements.txt
 
-EXPOSE 8080
+EXPOSE ${PORT}
 
 COPY app/ ./
 
-CMD ["sh", "-c", "uvicorn main:app --reload --host 0.0.0.0 --port 8080 & python main_rabbitmq.py"]
+CMD ["sh", "-c", "uvicorn main:app --reload --host 0.0.0.0 --port ${PORT} & python main_rabbitmq.py"]

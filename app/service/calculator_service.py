@@ -6,7 +6,7 @@ from os import environ
 
 class CalculatorService:
     def __init__(self):
-        engine_ = create_engine(environ.get("HEROKU_DATABASE_URL", engine.URL.create(
+        engine_ = create_engine(environ.get("DATABASE_URL", engine.URL.create(
             "postgres",
             database=environ.get("MEASUREMENTS_DB", "measurements"),
             username=environ.get("POSTGRES_USER", "user"),
