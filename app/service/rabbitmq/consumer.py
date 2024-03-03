@@ -23,14 +23,14 @@ Base = declarative_base(metadata=MetaData(schema='dev'))
 logger = logging.getLogger("rabbitmq_consumer")
 logging.getLogger("pika").setLevel(logging.WARNING)
 
-dbUrl = engine.URL.create(
+dbUrl = environ.get("HEROKU_DATABASE_URL", engine.URL.create(
         "postgresql",
         database=environ["MEASUREMENTS_DB"],
         username=environ["POSTGRES_USER"],
         password=environ["POSTGRES_PASSWORD"],
         host=environ["POSTGRES_HOST"],
         port=environ["POSTGRES_PORT"]
-    )
+    ))
 engine = create_engine(dbUrl, echo=True, future=True)
 session = Session(engine)
 
