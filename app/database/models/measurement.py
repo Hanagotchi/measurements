@@ -7,7 +7,7 @@ from os import environ
 
 class Measurement(Base):
     __tablename__ = "measurements"
-    __table_args__ = {'schema': environ.get("MEASUREMENTS_SCHEMA", "dev")}
+    __table_args__ = {'schema': environ.get("POSTGRES_SCHEMA", "measurements")}
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     id_plant: Mapped[int] = mapped_column(Integer, unique=True)
@@ -22,7 +22,7 @@ class Measurement(Base):
         CheckConstraint('humidity >= 0 AND humidity <= 100', name='check_humidity'),
         CheckConstraint('humidity >= 0 ', name='check_light'),
         CheckConstraint('humidity >= 0 AND humidity <= 100', name='check_watering'),
-        {'schema': environ.get("MEASUREMENTS_SCHEMA", "dev")}
+        {'schema': environ.get("POSTGRES_SCHEMA", "measurements")}
     )
 
     def __repr__(self):
