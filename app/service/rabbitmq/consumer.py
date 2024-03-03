@@ -11,19 +11,27 @@ from pydantic import ValidationError
 from schemas.measurement import MeasurementReadingSchema
 from sqlalchemy import MetaData
 from sqlalchemy.orm import Session
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, engine
 from sqlalchemy.ext.declarative import declarative_base
 from ..common.middleware import Middleware
 from database.models.measurement import Measurement
 from database.database import SQLAlchemyClient
 from resources.parser import apply_rules
+from os import environ
 
 Base = declarative_base(metadata=MetaData(schema='dev'))
 
 logger = logging.getLogger("rabbitmq_consumer")
 logging.getLogger("pika").setLevel(logging.WARNING)
 
-dbUrl = os.environ.get("DATABASE_URL")
+dbUrl = engine.URL.create(
+        "postgresql",
+        database=environ["MEASUREMENTS_DB"],
+        username=environ["POSTGRES_USER"],
+        password=environ["POSTGRES_PASSWORD"],
+        host=environ["POSTGRES_HOST"],
+        port=environ["POSTGRES_PORT"]
+    )
 engine = create_engine(dbUrl, echo=True, future=True)
 session = Session(engine)
 
