@@ -16,4 +16,4 @@ COPY app/ ./
 COPY ./entrypoint-heroku.sh .
 RUN chmod +x ./entrypoint-heroku.sh
 
-CMD ["/entrypoint-heroku.sh"]
+CMD ["./entrypoint-heroku.sh"]
