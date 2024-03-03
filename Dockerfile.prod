@@ -15,6 +15,6 @@ EXPOSE ${PORT}
 COPY app/ ./
 
 COPY ./entrypoint-heroku.sh .
-CHMOD +x ./entrypoint-heroku.sh
+RUN chmod +x /entrypoint-heroku.sh
 
 CMD ["/entrypoint-heroku.sh"]
