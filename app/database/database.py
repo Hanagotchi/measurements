@@ -13,13 +13,13 @@ load_dotenv()
 
 class SQLAlchemyClient():
     db_url = environ.get("HEROKU_DATABASE_URL", engine.URL.create(
-        "postgresql",
+        "postgres",
         database=environ["MEASUREMENTS_DB"],
         username=environ["POSTGRES_USER"],
         password=environ["POSTGRES_PASSWORD"],
         host=environ["POSTGRES_HOST"],
         port=environ["POSTGRES_PORT"]
-    ))
+    )).replace("postgres://", "postgresql://", 1)
 
     engine = create_engine(db_url)
 

@@ -6,14 +6,14 @@ from os import environ
 
 class CalculatorService:
     def __init__(self):
-        engine_ = create_engine(engine.URL.create(
-            "postgresql",
+        engine_ = create_engine(environ.get("HEROKU_DATABASE_URL", engine.URL.create(
+            "postgres",
             database=environ["MEASUREMENTS_DB"],
             username=environ["POSTGRES_USER"],
             password=environ["POSTGRES_PASSWORD"],
             host=environ["POSTGRES_HOST"],
             port=environ["POSTGRES_PORT"]
-        ), echo=True)
+        )).replace("postgres://", "postgresql://", 1), echo=True)
         self.session = Session(engine_)
 
     def add_number(self, number):
