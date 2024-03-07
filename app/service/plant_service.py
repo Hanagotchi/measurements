@@ -31,7 +31,7 @@ class PlantService():
                     return None
                 else:
                     return response.raise_for_status().json()
-                    
+
         except Exception as e:
             logger.error(
                 "Plant service cannot be accessed because: " + str(e)
@@ -40,7 +40,7 @@ class PlantService():
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail="Plant service service cannot be accessed",
             )
-        
+
     @staticmethod
     async def get_plant_type(botanical_name: str) -> Optional[PlantTypeSchema]:
         try:
@@ -54,7 +54,7 @@ class PlantService():
                     return None
                 else:
                     return response.raise_for_status().json()
-                    
+
         except Exception as e:
             logger.error(
                 "Plant service cannot be accessed because: " + str(e)
