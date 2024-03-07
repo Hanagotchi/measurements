@@ -13,7 +13,6 @@ class DevicePlant(Base):
     plant_type: Mapped[int] = mapped_column(SmallInteger)
     id_user: Mapped[int] = mapped_column(Integer)
 
-
     def __repr__(self) -> str:
         return (f"DevicePlant(id_device={self.id_device}, "
                 f"id_plant={self.id_plant}, "

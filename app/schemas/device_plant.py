@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 from typing import Optional
 
+
 class DevicePlantCreateSchema(BaseModel):
     id_device: str = Field(...)
     id_plant: int = Field(..., gt=0)
@@ -12,6 +13,7 @@ class DevicePlantCreateSchema(BaseModel):
                 "id_plant": 1,
             }
         }
+
 
 class DevicePlantSchema(DevicePlantCreateSchema):
     plant_type: int = Field(..., gt=0)

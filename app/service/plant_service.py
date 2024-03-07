@@ -19,10 +19,12 @@ PLANT_SERVICE_URL = environ["PLANT_SERVICE_URL"]
 
 class PlantService():
     @staticmethod
-    async def get_plant(plant_id: str) -> Optional[PlantSchema]:
+    async def get_plant(plant_id: int) -> Optional[PlantSchema]:
         try:
             async with AsyncClient() as client:
-                response = await client.get(PLANT_SERVICE_URL + f"/plants/{plant_id}")
+                response = await client.get(
+                    PLANT_SERVICE_URL + f"/plants/{plant_id}"
+                )
                 if response.status_code == codes.OK:
                     return PlantSchema(**response.json())
                 elif response.status_code == codes.NOT_FOUND:
@@ -43,7 +45,9 @@ class PlantService():
     async def get_plant_type(botanical_name: str) -> Optional[PlantTypeSchema]:
         try:
             async with AsyncClient() as client:
-                response = await client.get(PLANT_SERVICE_URL + f"/plant-type/{botanical_name}")
+                response = await client.get(
+                    PLANT_SERVICE_URL + f"/plant-type/{botanical_name}"
+                )
                 if response.status_code == codes.OK:
                     return PlantTypeSchema(**response.json())
                 elif response.status_code == codes.NOT_FOUND:

@@ -18,9 +18,15 @@ class Measurement(Base):
     watering: Mapped[Optional[int]] = mapped_column(SmallInteger)
 
     __table_args__ = (
-        CheckConstraint('humidity >= 0 AND humidity <= 100', name='check_humidity'),
+        CheckConstraint(
+            'humidity >= 0 AND humidity <= 100',
+            name='check_humidity'
+        ),
         CheckConstraint('humidity >= 0 ', name='check_light'),
-        CheckConstraint('humidity >= 0 AND humidity <= 100', name='check_watering'),
+        CheckConstraint(
+            'humidity >= 0 AND humidity <= 100',
+            name='check_watering'
+        ),
         {'schema': 'dev'}
     )
 

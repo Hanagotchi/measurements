@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 
+
 class PlantTypeSchema(BaseModel):
     botanical_name: str = Field(..., max_length=70)
     id: int = Field(..., gt=0)
