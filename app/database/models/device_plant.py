@@ -4,10 +4,12 @@ from database.models.base import Base
 from schemas.device_plant import DevicePlantSchema
 from os import environ
 
+SCHEMA = environ.get("POSTGRES_SCHEMA", "measurements_service")
+
 
 class DevicePlant(Base):
     __tablename__ = "device_plant"
-    __table_args__ = {'schema': environ.get("POSTGRES_SCHEMA", "measurements_service")}
+    __table_args__ = {'schema': SCHEMA}
 
     id_device: Mapped[str] = mapped_column(String(32), primary_key=True)
     id_plant: Mapped[int] = mapped_column(Integer, unique=True)

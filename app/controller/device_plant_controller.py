@@ -35,11 +35,16 @@ def handle_common_errors(err):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=format(err)
         )
-
+    
     logger.error(format(err))
+    print("Holi", err)
+    raise err
+
+    """logger.error(format(err))
     raise HTTPException(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=format(err)
-    )
+    ) """
+
 
 
 def withSQLExceptionsHandle(async_mode: bool):

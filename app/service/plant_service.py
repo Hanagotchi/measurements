@@ -39,7 +39,7 @@ class PlantService():
                 )
             raise HTTPException(
                 status_code=e.response.status_code,
-                detail=e.response.content,
+                detail=e.response.content.decode(),
             )
 
     @staticmethod
@@ -62,5 +62,5 @@ class PlantService():
                 )
             raise HTTPException(
                 status_code=e.response.status_code,
-                detail=e.response.content,
+                detail=e.response.content.decode(),
             )
