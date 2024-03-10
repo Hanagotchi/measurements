@@ -3,11 +3,11 @@ from sqlalchemy.orm import Mapped, mapped_column
 from typing import Optional
 from database.models.base import Base
 from os import environ
-
+SCHEMA = environ.get("POSTGRES_SCHEMA", "measurements")
 
 class Measurement(Base):
     __tablename__ = "measurements"
-    __table_args__ = {'schema': environ.get("POSTGRES_SCHEMA", "measurements")}
+    __table_args__ = {'schema': SCHEMA}
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     id_plant: Mapped[int] = mapped_column(Integer, unique=True)
@@ -19,10 +19,13 @@ class Measurement(Base):
     watering: Mapped[Optional[int]] = mapped_column(SmallInteger)
 
     __table_args__ = (
-        CheckConstraint('humidity >= 0 AND humidity <= 100', name='check_humidity'),
+        CheckConstraint(
+            'humidity >= 0 AND humidity <= 100',
+            name='check_humidity'
+        ),
         CheckConstraint('humidity >= 0 ', name='check_light'),
         CheckConstraint('humidity >= 0 AND humidity <= 100', name='check_watering'),
-        {'schema': environ.get("POSTGRES_SCHEMA", "measurements")}
+        {'schema': SCHEMA}
     )
 
     def __repr__(self):

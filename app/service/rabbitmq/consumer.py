@@ -46,7 +46,9 @@ class Consumer:
             return dp
         except Exception as err:
             logger.error(f"{err} - {type(err)}")
-            raise RowNotFoundError(measurement_from_rabbit.id_device, "DEVICE_PLANT")
+            raise RowNotFoundError(
+                measurement_from_rabbit.id_device, "DEVICE_PLANT"
+            )
 
     def check_package(self, measurement_from_rabbit):
         logger.info("TO DO - Step #2 from Ticket HAN-14")
@@ -84,7 +86,9 @@ class Consumer:
         except Exception as err:
             logger.error(f"{err} - {type(err)}")
             self.__sqlAlchemyClient.rollback()
-            raise InvalidInsertionError(measurement_from_rabbit, "MEAUSUREMENT")
+            raise InvalidInsertionError(
+                measurement_from_rabbit, "MEAUSUREMENT"
+            )
 
     def __callback(self, body):
         device_plant = None
@@ -114,7 +118,9 @@ class Consumer:
             logger.warn(LoggerMessages.EMPTY_PACKAGE_RECEIVED)
             logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
 
-            self.send_notification(device_plant.id_user, measurement, err, body)
+            self.send_notification(
+                device_plant.id_user, measurement, err, body
+            )
 
             measurement = None  # For not saving the measurement.
         except DeviatedParametersError as err:

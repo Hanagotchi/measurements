@@ -11,7 +11,7 @@
         IF (SELECT COUNT(*) FROM measurements.device_plant) = 0 THEN
             INSERT INTO measurements.device_plant (id_device, id_plant, plant_type, id_user) VALUES 
                 ('fd7c7531467748539f99d2bcef076c88', 1, 1, 1),
-                ('fd8c7531467748539f99d2bcef076c88', 2, 2, 2),
-                ('fd9c7531467748539f99d2bcef076c88', 3, 3, 3);
+                ('fd8c7531467748539f99d2bcef076c89', 2, 2, 2),
+                ('fd9c7531467748539f99d2bcef076c90', 3, 3, 3);
         END IF;
     END $do$;
