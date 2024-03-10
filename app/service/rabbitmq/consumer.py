@@ -18,19 +18,12 @@ from database.database import SQLAlchemyClient
 from resources.parser import apply_rules
 from os import environ
 
-Base = declarative_base(metadata=MetaData(schema='dev'))
+Base = declarative_base(metadata=MetaData(schema=environ.get("POSTGRES_SCHEMA", "measurements")))
 
 logger = logging.getLogger("rabbitmq_consumer")
 logging.getLogger("pika").setLevel(logging.WARNING)
 
-dbUrl = environ.get("DATABASE_URL", engine.URL.create(
-        "postgres",
-        database=environ.get("POSTGRES_DB", "dev"),
-        username=environ.get("POSTGRES_USER", "user"),
-        password=environ.get("POSTGRES_PASSWORD", "1234"),
-        host=environ.get("POSTGRES_HOST", "sql"),
-        port=environ.get("POSTGRES_PORT", "5432")
-    )).replace("postgres://", "postgresql://", 1)
+dbUrl = environ.get("DATABASE_URL").replace("postgres://", "postgresql://", 1)
 engine = create_engine(dbUrl, echo=True, future=True)
 session = Session(engine)
 

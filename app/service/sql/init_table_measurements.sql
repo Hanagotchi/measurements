@@ -1,10 +1,6 @@
-#!/bin/bash
-
-set -e
-psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$MEASUREMENTS_DB" <<-'EOSQL'
-    CREATE SCHEMA IF NOT EXISTS dev;
+    CREATE SCHEMA IF NOT EXISTS measurements;
     CREATE TABLE
-        IF NOT EXISTS dev.measurements (
+        IF NOT EXISTS measurements.measurements (
             id SERIAL PRIMARY KEY,
             id_plant INT,
             plant_type SMALLINT,
@@ -20,4 +16,3 @@ psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$MEASUREMENTS_DB" 
                 AND watering <= 100
             )
         );
-EOSQL
