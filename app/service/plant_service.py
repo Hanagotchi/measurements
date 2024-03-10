@@ -1,7 +1,8 @@
 import logging
 from httpx import (
     AsyncClient,
-    codes
+    codes,
+    HTTPStatusError
 )
 from os import environ
 from fastapi import status, HTTPException
