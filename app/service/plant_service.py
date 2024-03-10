@@ -5,7 +5,7 @@ from httpx import (
     HTTPStatusError
 )
 from os import environ
-from fastapi import status, HTTPException
+from fastapi import HTTPException
 from schemas.plant import PlantSchema
 from typing import Optional
 
@@ -39,7 +39,7 @@ class PlantService():
                 )
             raise HTTPException(
                 status_code=e.response.status_code,
-                detail=e.response.content,
+                detail=e.response.content.decode(),
             )
 
     @staticmethod
@@ -62,5 +62,5 @@ class PlantService():
                 )
             raise HTTPException(
                 status_code=e.response.status_code,
-                detail=e.response.content,
+                detail=e.response.content.decode(),
             )

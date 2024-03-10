@@ -2,11 +2,14 @@ from sqlalchemy import CheckConstraint, Integer, String, SmallInteger
 from sqlalchemy.orm import Mapped, mapped_column
 from typing import Optional
 from database.models.base import Base
+from os import environ
+
+SCHEMA = environ.get("POSTGRES_SCHEMA", "measurements")
 
 
 class Measurement(Base):
     __tablename__ = "measurements"
-    __table_args__ = {'schema': 'dev'}
+    __table_args__ = {'schema': SCHEMA}
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     id_plant: Mapped[int] = mapped_column(Integer, unique=True)

@@ -2,11 +2,14 @@ from sqlalchemy import Integer, String, SmallInteger
 from sqlalchemy.orm import Mapped, mapped_column
 from database.models.base import Base
 from schemas.device_plant import DevicePlantSchema
+from os import environ
+
+SCHEMA = environ.get("POSTGRES_SCHEMA", "measurements")
 
 
 class DevicePlant(Base):
     __tablename__ = "device_plant"
-    __table_args__ = {'schema': 'dev'}
+    __table_args__ = {'schema': SCHEMA}
 
     id_device: Mapped[str] = mapped_column(String(32), primary_key=True)
     id_plant: Mapped[int] = mapped_column(Integer, unique=True)
