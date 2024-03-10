@@ -1,6 +1,6 @@
-    CREATE SCHEMA IF NOT EXISTS measurements;
+    CREATE SCHEMA IF NOT EXISTS measurements_service;
     CREATE TABLE
-        IF NOT EXISTS measurements.measurements (
+        IF NOT EXISTS measurements_service.measurements (
             id SERIAL PRIMARY KEY,
             id_plant INT,
             plant_type SMALLINT,

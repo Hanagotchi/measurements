@@ -5,5 +5,5 @@ from os import environ
 
 class Number(Base):
     __tablename__ = 'numbers'
-    __table_args__ = {'schema': environ.get("POSTGRES_SCHEMA", "measurements")}
+    __table_args__ = {'schema': environ.get("POSTGRES_SCHEMA", "measurements_service")}
     number = Column(Integer, primary_key=True)

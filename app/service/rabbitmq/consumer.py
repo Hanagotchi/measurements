@@ -18,7 +18,7 @@ from database.database import SQLAlchemyClient
 from resources.parser import apply_rules
 from os import environ
 
-Base = declarative_base(metadata=MetaData(schema=environ.get("POSTGRES_SCHEMA", "measurements")))
+Base = declarative_base(metadata=MetaData(schema=environ.get("POSTGRES_SCHEMA", "measurements_service")))
 
 logger = logging.getLogger("rabbitmq_consumer")
 logging.getLogger("pika").setLevel(logging.WARNING)
