@@ -2,11 +2,10 @@ from sqlalchemy import create_engine, select, delete, engine, column
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 from os import environ
-from typing import Optional, Union
+from typing import Optional, Sequence, Union
 
 from database.models.device_plant import DevicePlant
 from database.models.measurement import Measurement
-from typing import List
 
 load_dotenv()
 
@@ -14,11 +13,11 @@ load_dotenv()
 class SQLAlchemyClient():
     db_url = engine.URL.create(
         "postgresql",
-        database=environ["MEASUREMENTS_DB"],
+        database=environ["POSTGRES_DB"],
         username=environ["POSTGRES_USER"],
         password=environ["POSTGRES_PASSWORD"],
         host=environ["POSTGRES_HOST"],
-        port=environ["POSTGRES_PORT"]
+        port=int(environ["POSTGRES_PORT"])
     )
 
     engine = create_engine(db_url)
@@ -35,7 +34,7 @@ class SQLAlchemyClient():
         self.session.rollback()
 
     def clean_table(self, table: Union[DevicePlant, Measurement]):
-        query = delete(table)
+        query = delete(table)  # type: ignore
         self.session.execute(query)
         self.session.commit()
 
@@ -53,9 +52,9 @@ class SQLAlchemyClient():
         result = self.session.scalars(query).one()
         return result
 
-    def find_all(self, limit: int) -> List[DevicePlant]:
+    def find_all(self, limit: int) -> Sequence[DevicePlant]:
         query = select(DevicePlant).limit(limit)
-        result = self.session.scalars(query)
+        result = self.session.scalars(query).all()
         return result
 
     def update_device_plant(self,
@@ -79,9 +78,7 @@ class SQLAlchemyClient():
         query = select(Measurement).where(
             Measurement.id_plant == id_plant
         ).order_by(Measurement.id.desc()).limit(1)
-
         result: Measurement = self.session.scalars(query).one()
-
         return result
 
     def delete_by_field(self, field: str, value: str) -> int:

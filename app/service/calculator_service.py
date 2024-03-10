@@ -6,7 +6,9 @@ from database.models.number import Number
 
 class CalculatorService:
     def __init__(self):
-        engine = create_engine(os.environ.get('DATABASE_URL'), echo=True)
+        engine = create_engine(
+            os.environ.get('DATABASE_URL'), echo=True  # type: ignore
+        )
         self.session = Session(engine)
 
     def add_number(self, number):
