@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, select, delete, engine, column
+from sqlalchemy import create_engine, select, delete, column
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 from os import environ

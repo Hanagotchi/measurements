@@ -1,4 +1,3 @@
-from sqlalchemy import create_engine, engine
 from sqlalchemy.orm import Session
 from database.models.number import Number
 from os import environ

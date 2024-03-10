@@ -5,7 +5,7 @@ from httpx import (
     HTTPStatusError
 )
 from os import environ
-from fastapi import status, HTTPException
+from fastapi import HTTPException
 from schemas.plant import PlantSchema
 from typing import Optional
 
