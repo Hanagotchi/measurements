@@ -10,7 +10,7 @@ from pydantic import ValidationError
 from schemas.measurement import MeasurementReadingSchema
 from sqlalchemy import MetaData
 from sqlalchemy.orm import Session
-from sqlalchemy import create_engine, engine
+from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from ..common.middleware import Middleware
 from database.models.measurement import Measurement
