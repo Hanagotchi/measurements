@@ -12,8 +12,8 @@ class Measurement(Base):
     __table_args__ = {'schema': SCHEMA}
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    id_plant: Mapped[int] = mapped_column(Integer, unique=True)
-    plant_type: Mapped[int] = mapped_column(SmallInteger)
+    id_plant: Mapped[int] = mapped_column(Integer)
+    plant_type: Mapped[int] = mapped_column(String(70))
     time_stamp: Mapped[str] = mapped_column(String(50))
     temperature: Mapped[Optional[int]] = mapped_column(SmallInteger)
     humidity: Mapped[Optional[int]] = mapped_column(SmallInteger)
