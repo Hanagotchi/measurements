@@ -60,7 +60,7 @@ class SQLAlchemyClient():
     def update_device_plant(self,
                             id_device: str,
                             id_plant: Optional[int],
-                            plant_type: Optional[int],
+                            plant_type: str,
                             id_user: Optional[int]):
 
         query = select(DevicePlant).where(DevicePlant.id_device == id_device)

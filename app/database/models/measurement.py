@@ -30,7 +30,7 @@ class Measurement(Base):
             'humidity >= 0 AND humidity <= 100',
             name='check_watering'
         ),
-        {'schema': 'dev'}
+        {'schema': SCHEMA}
     )
 
     def __repr__(self):
