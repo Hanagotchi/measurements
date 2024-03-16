@@ -13,5 +13,7 @@ RUN pip install -r requirements.txt
 EXPOSE ${PORT}
 
 COPY app/ ./
+COPY ./entrypoint-heroku.sh .
+RUN chmod +x ./entrypoint-heroku.sh
 
-CMD ["sh", "-c", "uvicorn main:app --reload --host 0.0.0.0 --port ${PORT} & python main_rabbitmq.py"]
+CMD ["./entrypoint-heroku.sh"]

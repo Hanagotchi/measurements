@@ -4,7 +4,7 @@ from database.models.base import Base
 from schemas.device_plant import DevicePlantSchema
 from os import environ
 
-SCHEMA = environ.get("POSTGRES_SCHEMA", "measurements")
+SCHEMA = environ.get("POSTGRES_SCHEMA", "measurements_service")
 
 
 class DevicePlant(Base):
