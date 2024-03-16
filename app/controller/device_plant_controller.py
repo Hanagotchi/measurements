@@ -37,7 +37,6 @@ def handle_common_errors(err):
         )
 
     logger.error(format(err))
-    print("Holi", err)
     raise err
 
     """logger.error(format(err))
@@ -85,22 +84,10 @@ async def create_device_plant_relation(
                 },
             )
 
-        plant_type = await PlantService.get_plant_type(plant.scientific_name)
-        if not plant_type:
-            return JSONResponse(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                content={
-                    "scientific_name": (
-                        "Could not found any plant type "
-                        f"with scientific name {plant.scientific_name}"
-                    )
-                },
-            )
-
         device_plant = DevicePlant(
             id_device=device_plant.id_device,
             id_plant=device_plant.id_plant,
-            plant_type=plant_type.id,
+            plant_type=plant.scientific_name,
             id_user=plant.id_user,
         )  # type: ignore
         req.app.database.add(device_plant)
@@ -120,9 +107,11 @@ async def update_device_plant(
     ],
 ):
     try:
+
         if not device_plant_update_set.id_plant:
             return req.app.database.find_by_device_id(id_device)
 
+        # Check if the plant exists
         plant = await PlantService.get_plant(device_plant_update_set.id_plant)
         if not plant:
             return JSONResponse(
@@ -135,22 +124,10 @@ async def update_device_plant(
                 },
             )
 
-        plant_type = await PlantService.get_plant_type(plant.scientific_name)
-        if not plant_type:
-            return JSONResponse(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                content={
-                    "scientific_name": (
-                        "Could not found any plant type "
-                        f"with scientific name {plant.scientific_name}"
-                    )
-                },
-            )
-
         req.app.database.update_device_plant(
             id_device,
             plant.id,
-            plant_type.id,
+            plant.scientific_name,
             plant.id_user,
         )
         return req.app.database.find_by_device_id(id_device)

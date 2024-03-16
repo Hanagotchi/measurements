@@ -16,7 +16,7 @@ class DevicePlantCreateSchema(BaseModel):
 
 
 class DevicePlantSchema(DevicePlantCreateSchema):
-    plant_type: int = Field(..., gt=0)
+    plant_type: str = Field(..., max_length=70)
     id_user: int = Field(..., gt=0)
 
     class Config:
@@ -24,7 +24,7 @@ class DevicePlantSchema(DevicePlantCreateSchema):
             "example": {
                 "id_device": "1",
                 "id_plant": 1,
-                "plant_type": 1,
+                "plant_type": "Duranta erecta",
                 "id_user": 1
             }
         }

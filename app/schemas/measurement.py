@@ -5,7 +5,7 @@ from typing import Optional
 class MeasurementSavedSchema(BaseModel):
     id: int
     id_plant: int
-    plant_type: int
+    plant_type: str
     time_stamp: str
     temperature: Optional[int]
     humidity: Optional[int]

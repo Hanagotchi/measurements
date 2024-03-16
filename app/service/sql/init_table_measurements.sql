@@ -3,7 +3,7 @@
         IF NOT EXISTS measurements_service.measurements (
             id SERIAL PRIMARY KEY,
             id_plant INT,
-            plant_type SMALLINT,
+            plant_type VARCHAR(70),
             time_stamp VARCHAR(50),
             temperature SMALLINT,
             humidity SMALLINT CHECK (
