@@ -1,4 +1,3 @@
-import os
 import json
 from exceptions.logger_messages import LoggerMessages
 import pydantic
@@ -17,13 +16,15 @@ from ..common.middleware import Middleware
 from database.models.measurement import Measurement
 from database.database import SQLAlchemyClient
 from resources.parser import apply_rules
+from os import environ
 
-Base = declarative_base(metadata=MetaData(schema='dev'))
 
+Base = declarative_base(
+    metadata=MetaData(schema=environ.get("POSTGRES_SCHEMA", "measurements_service"))
+)
 logger = logging.getLogger("rabbitmq_consumer")
 logging.getLogger("pika").setLevel(logging.WARNING)
-
-dbUrl = os.environ.get("DATABASE_URL")
+dbUrl = environ.get("DATABASE_URL").replace("postgres://", "postgresql://", 1)
 engine = create_engine(dbUrl, echo=True, future=True)
 session = Session(engine)
 
@@ -41,7 +42,8 @@ class Consumer:
     def obtain_device_plant(self, measurement_from_rabbit):
         try:
             dp = self.__sqlAlchemyClient.find_by_device_id(
-                measurement_from_rabbit.id_device)
+                measurement_from_rabbit.id_device
+            )
             logger.info(LoggerMessages.ROW_FOUND.format("DEVICE_PLANT", dp))
             return dp
         except Exception as err:
@@ -87,13 +89,16 @@ class Consumer:
             temperature=measurement_from_rabbit.temperature,
             humidity=measurement_from_rabbit.humidity,
             light=measurement_from_rabbit.light,
-            watering=measurement_from_rabbit.watering
+            watering=measurement_from_rabbit.watering,
         )
         try:
             self.__sqlAlchemyClient.add(measurement_from_db)
 
-            logger.info(LoggerMessages.NEW_ROW_INSERTED.format(
-                "MEASUREMENT", measurement_from_db))
+            logger.info(
+                LoggerMessages.NEW_ROW_INSERTED.format(
+                    "MEASUREMENT", measurement_from_db
+                )
+            )
         except Exception as err:
             logger.error(f"{err} - {type(err)}")
             self.__sqlAlchemyClient.rollback()
@@ -105,21 +110,25 @@ class Consumer:
 
         try:
             measurement = MeasurementReadingSchema(**json.loads(body))
-            logger.info(LoggerMessages.NEW_PACKAGE_RECEIVED.format(
-                measurement.id_device))
+            logger.info(
+                LoggerMessages.NEW_PACKAGE_RECEIVED.format(measurement.id_device)
+            )
             logger.debug(LoggerMessages.PACKAGE_DETAIL.format(body))
 
             device_plant = self.obtain_device_plant(measurement)
             self.check_package(measurement)
             self.apply_rules(measurement)
-        except (pydantic.errors.PydanticUserError,
-                ValidationError,
-                json.JSONDecodeError) as err:
+        except (
+            pydantic.errors.PydanticUserError,
+            ValidationError,
+            json.JSONDecodeError,
+        ) as err:
             logger.warn(LoggerMessages.INVALID_PACKAGE_RECEIVED)
             logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
         except RowNotFoundError as err:
-            logger.warn(LoggerMessages.ROW_NOT_FOUND.format(err.primary_key,
-                                                            err.name_table))
+            logger.warn(
+                LoggerMessages.ROW_NOT_FOUND.format(err.primary_key, err.name_table)
+            )
             logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
 
             device_plant = None  # For not saving the measurement.
