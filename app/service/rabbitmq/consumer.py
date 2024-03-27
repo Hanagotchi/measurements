@@ -75,9 +75,8 @@ class Consumer:
             )
         )
 
-    def apply_rules(self, measurement):
-        # TODO: FIND PLANT TYPE NAME GIVEN PLANT TYPE
-        deviated_parameters = apply_rules(measurement, "Acorus calamus")
+    def apply_rules(self, measurement,  device_plant):
+        deviated_parameters = apply_rules(measurement, device_plant.plant_type)
         if len(deviated_parameters) > 0:
             raise DeviatedParametersError(deviated_parameters)
 
@@ -117,7 +116,7 @@ class Consumer:
 
             device_plant = self.obtain_device_plant(measurement)
             self.check_package(measurement)
-            self.apply_rules(measurement)
+            self.apply_rules(measurement, device_plant)
         except (
             pydantic.errors.PydanticUserError,
             ValidationError,
