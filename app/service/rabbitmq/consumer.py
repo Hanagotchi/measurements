@@ -50,9 +50,22 @@ class Consumer:
             logger.error(f"{err} - {type(err)}")
             raise RowNotFoundError(measurement_from_rabbit.id_device, "DEVICE_PLANT")
 
-    def check_package(self, measurement_from_rabbit):
-        logger.info("TO DO - Step #2 from Ticket HAN-14")
-        # raise EmptyPackageError(["temperature", "humidity"])
+    def check_package(self, measurement):
+        empty_values = []
+        if measurement.temperature is None:
+            empty_values.append("temperature")
+
+        if measurement.watering is None:
+            empty_values.append("watering")
+
+        if measurement.light is None:
+            empty_values.append("light")
+
+        if measurement.humidity is None:
+            empty_values.append("humidity")
+
+        if len(empty_values) > 0:
+            raise EmptyPackageError(empty_values)
 
     def send_notification(self, id_user, measurement, error, details):
         logger.info(LoggerMessages.USER_NOTIFIED.format(id_user))
@@ -62,9 +75,8 @@ class Consumer:
             )
         )
 
-    def apply_rules(self, measurement):
-        # TODO: FIND PLANT TYPE NAME GIVEN PLANT TYPE
-        deviated_parameters = apply_rules(measurement, "Acorus calamus")
+    def apply_rules(self, measurement,  device_plant):
+        deviated_parameters = apply_rules(measurement, device_plant.plant_type)
         if len(deviated_parameters) > 0:
             raise DeviatedParametersError(deviated_parameters)
 
@@ -104,7 +116,7 @@ class Consumer:
 
             device_plant = self.obtain_device_plant(measurement)
             self.check_package(measurement)
-            self.apply_rules(measurement)
+            self.apply_rules(measurement, device_plant)
         except (
             pydantic.errors.PydanticUserError,
             ValidationError,
