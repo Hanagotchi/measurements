@@ -4,5 +4,5 @@ from router.measurement_router import measurement
 
 api_router = APIRouter()
 
-api_router.include_router(device_plant, tags=["DevicePlant"], prefix="/device-plant")
-api_router.include_router(measurement, tags=["Measurement"], prefix="/measurement")
+api_router.include_router(device_plant, tags=["DevicePlant"], prefix="/measurements")
+api_router.include_router(measurement, tags=["Measurement"], prefix="/measurements")
