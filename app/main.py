@@ -41,16 +41,4 @@ async def root():
 async def calculator(request: RequestSchema):
     return controller.handle_sum(request)
 
-
-""" # Endpoint only for DB conection testing.
-@app.post("/device-plant")
-async def add_new_device_plant(req: Request,
-                               device_plant: DevicePlantSchema = Body(...)):
-    try:
-        req.app.database.add_new(DevicePlant.from_pydantic(device_plant))
-        return req.app.database.find_device_plant(device_plant.id_device)
-    except Exception as e:
-        req.app.database.rollback()
-        raise e """
-
 app.include_router(api_router)
