@@ -1,6 +1,17 @@
-from pydantic import BaseModel
-from typing import Optional
+from pydantic import BaseModel, Field
+from typing import Optional, Literal
 
+class DeviatedParameters(BaseModel):
+    temperature: Optional[Literal['lower', "higher"]] = Field(default=None)
+    humidity: Optional[Literal['lower', "higher"]] = Field(default=None)
+    light: Optional[Literal['lower', "higher"]] = Field(default=None)
+    watering: Optional[Literal['lower', "higher"]] = Field(default=None)
+
+    def hasDeviations(self) -> bool:
+        return (self.temperature is not None or 
+                self.humidity is not None or 
+                self.light is not None or 
+                self.watering is not None)
 
 class MeasurementSavedSchema(BaseModel):
     id: int
