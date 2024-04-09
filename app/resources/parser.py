@@ -4,7 +4,7 @@ from datetime import datetime
 import unittest
 
 
-from schemas.measurement import DeviatedParameters, MeasurementReadingSchema
+from schemas.measurement import DeviatedParametersSchema, Measurement
 
 file_path = 'resources/plants_dataset.csv'
 df = pd.read_csv(file_path)
@@ -68,7 +68,7 @@ def eval_deviation(
     results = list(map(lambda v: apply_rule_fn(v), values))
     return None if any(map(lambda v: v == None, results)) else results[0]
 
-def apply_rules(register: MeasurementReadingSchema, plant_name: str) -> DeviatedParameters:
+def apply_rules(register: Measurement, plant_name: str) -> DeviatedParametersSchema:
     plant_data = df[df['Botanical_Name'] == plant_name]
     h_value = plant_data['H'].values[0]
     l_value = plant_data['L'].values[0]
@@ -80,7 +80,7 @@ def apply_rules(register: MeasurementReadingSchema, plant_name: str) -> Deviated
     l_values = parse_values(l_value)
     w_values = parse_values(w_value)
 
-    return DeviatedParameters(
+    return DeviatedParametersSchema(
         temperature=eval_deviation(t_values, lambda x: apply_temperature_rule(x, register.temperature)),
         humidity=eval_deviation(h_values, lambda x: apply_humidity_rule(x, register.humidity)),
         light=eval_deviation(l_values, lambda x: apply_light_rule(x, register.light)),
