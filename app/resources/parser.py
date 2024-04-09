@@ -1,7 +1,6 @@
-from typing import Callable, Literal, Optional
+from typing import Literal, Optional
 import pandas as pd
 from datetime import datetime
-import unittest
 
 
 from schemas.measurement import DeviatedParametersSchema, Measurement
@@ -14,16 +13,21 @@ DELTA = 5
 def is_in_range(value, min, max):
     return min <= value <= max
 
+
 def is_deviated(value, min, max) -> Optional[Literal["lower", "higher"]]:
     if value < min:
         return "lower"
-    
+
     if value > max:
         return "higher"
-    
+
     return None
 
-def check_t_rule(register, night_value, day_value) -> Optional[Literal["lower", "higher"]]:
+
+def check_t_rule(
+        register,
+        night_value,
+        day_value) -> Optional[Literal["lower", "higher"]]:
     if is_daytime():
         return is_deviated(register, day_value - DELTA, day_value + DELTA)
     else:
@@ -60,15 +64,18 @@ def parse_values(string):
     values = string.split('-')
     return [int(value) for value in values]
 
+
 def eval_deviation(
-        values: list[int], 
-        apply_rule_fn
-    ) -> Optional[Literal["lower", "higher"]]:
+        values: list[int],
+        apply_rule_fn) -> Optional[Literal["lower", "higher"]]:
 
     results = list(map(lambda v: apply_rule_fn(v), values))
-    return None if any(map(lambda v: v == None, results)) else results[0]
+    return None if any(map(lambda v: v is None, results)) else results[0]
 
-def apply_rules(register: Measurement, plant_name: str) -> DeviatedParametersSchema:
+
+def apply_rules(
+        register: Measurement,
+        plant_name: str) -> DeviatedParametersSchema:
     plant_data = df[df['Botanical_Name'] == plant_name]
     h_value = plant_data['H'].values[0]
     l_value = plant_data['L'].values[0]
@@ -81,14 +88,24 @@ def apply_rules(register: Measurement, plant_name: str) -> DeviatedParametersSch
     w_values = parse_values(w_value)
 
     return DeviatedParametersSchema(
-        temperature=eval_deviation(t_values, lambda x: apply_temperature_rule(x, register.temperature)),
-        humidity=eval_deviation(h_values, lambda x: apply_humidity_rule(x, register.humidity)),
-        light=eval_deviation(l_values, lambda x: apply_light_rule(x, register.light)),
-        watering=eval_deviation(w_values, lambda x: apply_watering_rule(x, register.watering)),
+        temperature=eval_deviation(
+            t_values,
+            lambda x: apply_temperature_rule(x, register.temperature)),
+        humidity=eval_deviation(
+            h_values,
+            lambda x: apply_humidity_rule(x, register.humidity)),
+        light=eval_deviation(
+            l_values,
+            lambda x: apply_light_rule(x, register.light)),
+        watering=eval_deviation(
+            w_values,
+            lambda x: apply_watering_rule(x, register.watering)),
     )
 
 
-def apply_temperature_rule(rule, register) -> Optional[Literal["lower", "higher"]]:
+def apply_temperature_rule(
+        rule,
+        register) -> Optional[Literal["lower", "higher"]]:
     rule_function, rule_values = TEMP_RULES_MAP.get(rule, None)
     return rule_function(register, *rule_values)
 
