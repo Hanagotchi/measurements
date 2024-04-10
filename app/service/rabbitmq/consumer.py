@@ -18,7 +18,6 @@ from database.database import SQLAlchemyClient
 from resources.parser import apply_rules
 from os import environ
 
-
 Base = declarative_base(
     metadata=MetaData(schema=environ.get("POSTGRES_SCHEMA", "measurements_service"))
 )
@@ -77,7 +76,7 @@ class Consumer:
 
     def apply_rules(self, measurement,  device_plant):
         deviated_parameters = apply_rules(measurement, device_plant.plant_type)
-        if len(deviated_parameters) > 0:
+        if deviated_parameters.hasDeviations():
             raise DeviatedParametersError(deviated_parameters)
 
     def save_measurement(self, measurement_from_rabbit, device_plant):
