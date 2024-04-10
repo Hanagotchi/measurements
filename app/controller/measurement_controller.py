@@ -7,6 +7,7 @@ from resources.parser import apply_rules
 from schemas.measurement import MeasurementSavedSchema
 from sqlalchemy.exc import NoResultFound
 
+
 @withSQLExceptionsHandle(async_mode=False)
 def last_measurement_made_by_plant(req: Request, id_plant: int):
     try:
