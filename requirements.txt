@@ -5,6 +5,7 @@ flake8
 psycopg2
 pandas
 httpx
+firebase-admin
 
 ### RabbitMQ ###
 pika

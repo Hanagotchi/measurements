@@ -6,9 +6,12 @@ from schemas.schemas import Request as RequestSchema
 from service.calculator_service import CalculatorService
 from router import api_router
 
+
 app = FastAPI()
 service = CalculatorService()
 controller = CalculatorController(service)
+
+
 
 logger = logging.getLogger("measurements")
 logger.setLevel("DEBUG")
