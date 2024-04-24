@@ -72,14 +72,15 @@ class Consumer:
         logger.info(LoggerMessages.USER_NOTIFIED.format(id_user))
 
         print(f"details: {details}")
+        print(f"measurement: {measurement}")
         print(f"error: {error}")
 
-        if measurement.device_token is not None:
-                    message = messaging.Message(
-                        notification=messaging.Notification(title="Estado de tu planta", body="details"),
-                        token=measurement.device_token,
-                    )
-                    messaging.send(message)
+#         if measurement.device_token is not None:
+#                     message = messaging.Message(
+#                         notification=messaging.Notification(title="Estado de tu planta", body="details"),
+#                         token=measurement.device_token,
+#                     )
+#                     messaging.send(message)
 
     def apply_rules(self, measurement,  device_plant):
         deviated_parameters = apply_rules(measurement, device_plant.plant_type)
