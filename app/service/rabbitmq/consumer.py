@@ -18,7 +18,6 @@ from database.database import SQLAlchemyClient
 from resources.parser import apply_rules
 from os import environ
 from firebase_admin import messaging
-import sys
 
 Base = declarative_base(
     metadata=MetaData(schema=environ.get("POSTGRES_SCHEMA", "measurements_service"))
@@ -51,7 +50,6 @@ class Consumer:
             logger.error(f"{err} - {type(err)}")
             raise RowNotFoundError(measurement_from_rabbit.id_device, "DEVICE_PLANT")
 
-
     def check_package(self, measurement):
         empty_values = []
         if measurement.temperature is None:
@@ -68,7 +66,7 @@ class Consumer:
 
         if len(empty_values) > 0:
             raise EmptyPackageError(empty_values)
-        
+
     def generate_notification_body(self, error):
         parameters = {
             'temperature': 'temperatura',
@@ -76,27 +74,29 @@ class Consumer:
             'light': 'luz',
             'watering': 'riego'
         }
-        
+
         low_parameters = []
         high_parameters = []
         error_dict = error.parameters.dict()
-        
+
         for param, value in error_dict.items():
             if value == 'lower':
                 low_parameters.append(parameters.get(param, param))
             elif value == 'higher':
                 high_parameters.append(parameters.get(param, param))
-        
+
         low_msg = ", ".join(f"{param}" for param in low_parameters)
         high_msg = ", ".join(f"{param}" for param in high_parameters)
-        
+
         if low_msg and high_msg:
-            return f"Los siguientes parámetros están bajos: {low_msg}. Y los siguientes están altos: {high_msg}."
+            return (
+                f"Los siguientes parámetros están bajos: {low_msg}. "
+                f"Y los siguientes están altos: {high_msg}."
+            )
         elif low_msg:
             return f"Los siguientes parámetros están bajos: {low_msg}."
         elif high_msg:
             return f"Los siguientes parámetros están altos: {high_msg}."
-
 
     def send_notification(self, id_user, measurement, error, details):
         print(f"details: {details}")
@@ -109,16 +109,15 @@ class Consumer:
 
         try:
             if measurement.device_token is not None:
-                        message = messaging.Message(
-                            notification=messaging.Notification(title="Estado de tu planta", body="notification_body"),
-                            token=measurement.device_token,
-                        )
-                        messaging.send(message)
+                message = messaging.Message(
+                    notification=messaging.Notification(title="Estado de tu planta",
+                                                        body="notification_body"),
+                    token=measurement.device_token)
+                messaging.send(message)
             logger.info(LoggerMessages.USER_NOTIFIED.format(id_user))
 
         except Exception:
             pass
-
 
     def apply_rules(self, measurement,  device_plant):
         deviated_parameters = apply_rules(measurement, device_plant.plant_type)
@@ -180,7 +179,7 @@ class Consumer:
             logger.warn(LoggerMessages.EMPTY_PACKAGE_RECEIVED)
             logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
 
-            #self.send_notification(device_plant.id_user, measurement, err, body)
+            # self.send_notification(device_plant.id_user, measurement, err, body)
 
             measurement = None  # For not saving the measurement.
         except DeviatedParametersError as err:
