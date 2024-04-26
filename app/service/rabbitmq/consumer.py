@@ -111,7 +111,7 @@ class Consumer:
             if measurement.device_token is not None:
                 message = messaging.Message(
                     notification=messaging.Notification(title="Estado de tu planta",
-                                                        body="notification_body"),
+                                                        body=notification_body),
                     token=measurement.device_token)
                 messaging.send(message)
             logger.info(LoggerMessages.USER_NOTIFIED.format(id_user))
