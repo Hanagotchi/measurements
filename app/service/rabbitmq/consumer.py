@@ -64,6 +64,9 @@ class Consumer:
         if measurement.humidity is None:
             empty_values.append("humidity")
 
+        if measurement.id_device is None:
+            empty_values.append("id_device")
+
         if len(empty_values) > 0:
             raise EmptyPackageError(empty_values)
 
@@ -99,13 +102,8 @@ class Consumer:
             return f"Los siguientes parámetros están altos: {high_msg}."
 
     def send_notification(self, id_user, measurement, error, details):
-        print(f"details: {details}")
-        print(f"measurement: {measurement}")
-        print(f"error: {error}")
 
         notification_body = self.generate_notification_body(error)
-
-        print(f"notif body: {notification_body}")
 
         try:
             if measurement.device_token is not None:
@@ -174,14 +172,12 @@ class Consumer:
             )
             logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
 
-            device_plant = None  # For not saving the measurement.
+            device_plant = None
         except EmptyPackageError as err:
             logger.warn(LoggerMessages.EMPTY_PACKAGE_RECEIVED)
             logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
 
-            # self.send_notification(device_plant.id_user, measurement, err, body)
-
-            measurement = None  # For not saving the measurement.
+            measurement = None
         except DeviatedParametersError as err:
             logger.warn(LoggerMessages.DEVIATING_PARAMETERS)
             logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
