@@ -3,35 +3,22 @@ from fastapi import FastAPI
 
 from controller.measurements import MeasurementsController
 from service.measurements import MeasurementsService
+from service.plants import PlantsService
 from repository.measurements import MeasurementsRepository
 from schemas.measurement import MeasurementSavedSchema
-
+from schemas.device_plant import (
+    DevicePlantSchema,
+    DevicePlantCreateSchema
+)
 
 app = FastAPI()
 repository = MeasurementsRepository()
 service = MeasurementsService(repository)
-controller = MeasurementsController(service)
+plants_service = PlantsService()
+controller = MeasurementsController(service, plants_service)
 
 logger = logging.getLogger("measurements")
 logger.setLevel("DEBUG")
-
-
-# @app.on_event("startup")
-# async def start_up():
-#     app.logger = logger
-
-#     try:
-#         app.database = SQLAlchemyClient()
-#         app.logger.info("Postgres connection established")
-#     except Exception as e:
-#         app.logger.error(e)
-#         app.logger.error("Could not connect to Postgres client")
-
-
-# @app.on_event("shutdown")
-# async def shutdown_db_client():
-#     app.database.shutdown()
-#     app.logger.info("Postgres shutdown succesfully")
 
 
 @app.get("/")
@@ -44,10 +31,9 @@ async def get_plant_measurements(id_plant: int):
     return controller.handle_get_plant_last_measurement(id_plant)
 
 
-# @app.post("/device-plant", response_model=DevicePlantSchema)
-# async def create_device_plant_relation(req: Request,
-#                                        device_plant: DevicePlantCreateSchema):
-#     return await controller.create_device_plant_relation(req, device_plant)
+@app.post("/device-plant", response_model=DevicePlantSchema)
+async def create_device_plant_relation(device_plant: DevicePlantCreateSchema):
+    return await controller.handle_create_device_plant_relation(device_plant.dict())
 
 
 # @app.patch("/device-plant/{id_device}", response_model=DevicePlantSchema)

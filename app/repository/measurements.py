@@ -31,6 +31,17 @@ class MeasurementsRepository:
         self.session.commit()
 
     @withSQLExceptionsHandle()
+    def create_device_plant_relation(self, plant, device_plant):
+        device_plant = DevicePlant(
+            id_device=device_plant.id_device,
+            id_plant=device_plant.id_plant,
+            plant_type=plant.scientific_name,
+            id_user=plant.id_user,
+        )
+        self.session.add(device_plant)
+        self.session.commit()
+
+    @withSQLExceptionsHandle()
     def find_by_device_id(self, id_device: str) -> DevicePlant:
         query = select(DevicePlant).where(DevicePlant.id_device == id_device)
         result = self.session.scalars(query).one()
