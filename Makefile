@@ -9,7 +9,7 @@ create-network:
 .PHONY: create-network
 
 docker-image: create-network
-	docker build -f ./Dockerfile -t "app:latest" .
+	docker build --no-cache -f ./Dockerfile -t "app:latest" .
 .PHONY: docker-image
 
 docker-compose-up: docker-image

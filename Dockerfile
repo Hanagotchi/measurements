@@ -14,4 +14,4 @@ EXPOSE ${PORT}
 
 COPY app/ ./
 
-CMD ["sh", "-c", "uvicorn main:app --reload --host 0.0.0.0 --port ${PORT} & python main_rabbitmq.py"]
+CMD ["sh", "-c", "uvicorn main2:app --reload --host 0.0.0.0 --port ${PORT} & python main_rabbitmq.py"]
