@@ -2,6 +2,8 @@ from fastapi import status
 from fastapi.responses import JSONResponse
 from repository.measurements import MeasurementsRepository
 from exceptions.MeasurementsException import PlantNotFound
+from schemas.measurement import MeasurementSavedSchema
+from resources.parser import apply_rules
 
 
 class MeasurementsService:
@@ -13,6 +15,12 @@ class MeasurementsService:
             id_plant)
         if not last_measurement:
             return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content={})
+        last_measurement = MeasurementSavedSchema.model_validate(
+            last_measurement.__dict__)
+        last_measurement.deviations = apply_rules(
+            last_measurement,
+            last_measurement.plant_type
+        )
         return last_measurement
 
     def create_device_plant_relation(self, plant, device_plant):
