@@ -1,5 +1,6 @@
 import logging
-from fastapi import FastAPI
+from typing import List
+from fastapi import FastAPI, Depends
 
 from controller.measurements import MeasurementsController
 from service.measurements import MeasurementsService
@@ -8,8 +9,11 @@ from repository.measurements import MeasurementsRepository
 from schemas.measurement import MeasurementSavedSchema
 from schemas.device_plant import (
     DevicePlantSchema,
-    DevicePlantCreateSchema
+    DevicePlantCreateSchema,
+    DevicePlantPartialUpdateSchema,
+    DevicePlantUpdateSchema
 )
+from query_params.QueryParams import DevicePlantQueryParams
 
 app = FastAPI()
 repository = MeasurementsRepository()
@@ -36,36 +40,26 @@ async def create_device_plant_relation(device_plant: DevicePlantCreateSchema):
     return await controller.handle_create_device_plant_relation(device_plant.dict())
 
 
-# @app.patch("/device-plant/{id_device}", response_model=DevicePlantSchema)
-# async def update_fields_in_device_plant(
-#     id_device: str,
-#     req: Request,
-#     device_plant_update_set:
-#     DevicePlantPartialUpdateSchema = Body(...)
-# ):
-#     return await controller.update_device_plant(
-#         req, id_device, device_plant_update_set
-#     )
+@app.patch("/device-plant/{id_device}", response_model=DevicePlantSchema)
+async def update_fields_in_device_plant(id_device: str,
+                                        update_device_plant_info:
+                                        DevicePlantPartialUpdateSchema):
+    return await controller.handle_update_device_plant(id_device,
+                                                       update_device_plant_info.dict())
 
 
-# @app.put("/device-plant/{id_device}", response_model=DevicePlantSchema)
-# async def update_all_in_device_plant(
-#     id_device: str,
-#     req: Request,
-#     device_plant: DevicePlantUpdateSchema = Body(...)
-# ):
-#     return await controller.update_device_plant(req, id_device, device_plant)
+@app.put("/device-plant/{id_device}", response_model=DevicePlantSchema)
+async def update_all_in_device_plant(id_device: str,
+                                     device_plant_info: DevicePlantUpdateSchema):
+    return await controller.handle_update_device_plant(id_device,
+                                                       device_plant_info.dict())
 
 
-# @app.get("/device-plant", response_model=List[DevicePlantSchema])
-# async def get_device_plant(
-#     req: Request,
-#     id_plant: int = Query(None),
-#     limit: int = Query(10)
-# ):
-#     if id_plant is None:
-#         return controller.get_all_device_plant_relations(req, limit)
-#     return [controller.get_device_plant_relation(req, id_plant)]
+@app.get("/device-plant", response_model=List[DevicePlantSchema])
+async def get_device_plant(
+    query_params: DevicePlantQueryParams = Depends(DevicePlantQueryParams)
+):
+    return controller.handle_get_device_plant(query_params.get_query_params())
 
 
 # @app.delete("/device-plant/{id}")

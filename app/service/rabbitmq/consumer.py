@@ -51,7 +51,6 @@ class Consumer:
             logger.error(f"{err} - {type(err)}")
             raise RowNotFoundError(measurement_from_rabbit.id_device, "DEVICE_PLANT")
 
-
     def check_package(self, measurement):
         empty_values = []
         if measurement.temperature is None:
@@ -76,11 +75,12 @@ class Consumer:
         print(f"error: {error}")
 
         if measurement.device_token is not None:
-                    message = messaging.Message(
-                        notification=messaging.Notification(title="Estado de tu planta", body="details"),
-                        token=measurement.device_token,
-                    )
-                    messaging.send(message)
+            message = messaging.Message(
+                notification=messaging.Notification(title="Estado de tu planta",
+                                                    body="details"),
+                token=measurement.device_token,
+                )
+            messaging.send(message)
 
     def apply_rules(self, measurement,  device_plant):
         deviated_parameters = apply_rules(measurement, device_plant.plant_type)

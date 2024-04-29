@@ -12,7 +12,6 @@ service = CalculatorService()
 controller = CalculatorController(service)
 
 
-
 logger = logging.getLogger("measurements")
 logger.setLevel("DEBUG")
 

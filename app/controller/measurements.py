@@ -1,3 +1,6 @@
+from fastapi import status
+from fastapi.responses import JSONResponse
+# from fastapi.encoders import jsonable_encoder
 from service.measurements import MeasurementsService
 from service.plants import PlantsService
 from schemas.measurement import MeasurementSavedSchema
@@ -19,11 +22,30 @@ class MeasurementsController:
         return self.measurements_service.create_device_plant_relation(plant,
                                                                       device_plant)
 
-    def create_measurement(self, request):
-        return self.measurements_service.create_measurement(request)
+    async def handle_update_device_plant(self, id_device: str,
+                                         update_device_plant_info: dict):
+        plant_id = update_device_plant_info.get("id_plant")
+        if not plant_id:
+            device_plant = self.measurements_service.find_by_device_id(id_device)
+        else:
+            plant = await self.plants_service.get_plant(
+                update_device_plant_info.id_plant)
+            self.measurements_service.update_device_plant(id_device, plant, plant_id)
+            device_plant = self.measurements_service.find_by_device_id(id_device)
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=device_plant
+        )
 
-    def update_measurement(self, request):
-        return self.measurements_service.update_measurement(request)
-
-    def delete_measurement(self, request):
-        return self.measurements_service.delete_measurement(request)
+    def handle_get_device_plant(self, query_params: dict):
+        device_plant = self.measurements_service.get_device_plant(query_params)
+        print(f"device_plant: {device_plant}")
+        if not device_plant:
+            return JSONResponse(
+                status_code=status.HTTP_204_NO_CONTENT,
+                content={}
+            )
+        return JSONResponse(
+            status_code=status.HTTP_200_OK,
+            content=device_plant
+        )
