@@ -4,3 +4,4 @@ __pycache__/
 /venv/*
 *.lock
 .DS_Store
+vscode/

@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, Literal
 from fastapi import FastAPI, Depends
 
 from controller.measurements import MeasurementsController
@@ -62,10 +62,9 @@ async def get_device_plant(
     return controller.handle_get_device_plant(query_params.get_query_params())
 
 
-# @app.delete("/device-plant/{id}")
-# async def delete_device_plant_relation(
-#     response: Response, req: Request,
-#     type_id: Literal["id_device", "id_plant"],
-#     id: str
-# ):
-#     return controller.delete_device_plant_relation(req, response, type_id, id)
+@app.delete("/device-plant/{id}")
+async def delete_device_plant_relation(
+    type_id: Literal["id_device", "id_plant"],
+    id: str
+):
+    return controller.handle_delete_device_plant_relation(type_id, id)

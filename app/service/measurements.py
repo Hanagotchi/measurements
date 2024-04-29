@@ -11,22 +11,13 @@ class MeasurementsService:
     def get_plant_last_measurement(self, id_plant):
         last_measurement = self.measurements_repository.get_plant_last_measurement(
             id_plant)
-        print(f"last_measurement: {last_measurement}")
         if not last_measurement:
             return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content={})
         return last_measurement
 
     def create_device_plant_relation(self, plant, device_plant):
         if not plant:
-            return JSONResponse(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                content={
-                    "plant_id": (
-                        "Could not found any plant "
-                        f"with id {device_plant.id_plant}"
-                    )
-                },
-            )
+            return None
         try:
             device_plant = self.measurements_repository.create_device_plant_relation(
                 plant, device_plant
@@ -38,7 +29,7 @@ class MeasurementsService:
 
     def update_device_plant(self, id_device, plant, plant_id):
         if not plant:
-            raise PlantNotFound(id)
+            raise PlantNotFound(plant_id)
         try:
             self.measurements_repository.update_device_plant(id_device,
                                                              plant.id,
@@ -49,11 +40,21 @@ class MeasurementsService:
             self.measurements_repository.rollback()
             raise err
 
-    def get_device_plant(self, query_params):
+    def get_device_plant(self, query_params: dict = None, device_id: str = None):
+        if device_id:
+            return self.measurements_repository.find_by_device_id(device_id)
         id_plant = query_params.get("id_plant", None)
         limit = query_params.get("limit")
         if id_plant:
             result = self.measurements_repository.find_by_plant_id(id_plant)
-            print(f"result: {result}")
             return result
         return self.measurements_repository.find_all(limit)
+
+    def delete_device_plant_relation(self, type_id, id):
+        result_rowcount = 0
+        if type_id == "id_device":
+            result_rowcount = self.measurements_repository.delete_by_field(type_id, id)
+        else:
+            result_rowcount = self.measurements_repository.delete_by_field(type_id, id)
+
+        return result_rowcount if result_rowcount else None
