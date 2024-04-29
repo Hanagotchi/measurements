@@ -1,6 +1,5 @@
 from fastapi import status
 from fastapi.responses import JSONResponse
-# from fastapi.encoders import jsonable_encoder
 from service.measurements import MeasurementsService
 from service.plants import PlantsService
 from schemas.measurement import MeasurementSavedSchema
