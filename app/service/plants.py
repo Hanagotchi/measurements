@@ -18,7 +18,7 @@ logger.setLevel("DEBUG")
 PLANT_SERVICE_URL = environ["PLANT_SERVICE_URL"]
 
 
-class PlantService():
+class PlantsService():
     @staticmethod
     async def get_plant(plant_id: int) -> Optional[PlantSchema]:
         try:
