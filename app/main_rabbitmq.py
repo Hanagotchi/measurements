@@ -6,7 +6,6 @@ from firebase_admin import credentials, initialize_app
 
 
 def main():
-    print("main!!: ")
     firebase_credentials = os.environ.get('FIREBASE_CREDENTIALS')
     cred = credentials.Certificate(json.loads(firebase_credentials))
     initialize_app(cred)
