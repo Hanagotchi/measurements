@@ -35,12 +35,12 @@ async def get_plant_measurements(id_plant: int):
     return controller.handle_get_plant_last_measurement(id_plant)
 
 
-@app.post("/device-plant", response_model=DevicePlantSchema)
+@app.post("/measurements/device-plant", response_model=DevicePlantSchema)
 async def create_device_plant_relation(device_plant: DevicePlantCreateSchema):
     return await controller.handle_create_device_plant_relation(device_plant.dict())
 
 
-@app.patch("/device-plant/{id_device}", response_model=DevicePlantSchema)
+@app.patch("/measurements/device-plant/{id_device}", response_model=DevicePlantSchema)
 async def update_fields_in_device_plant(id_device: str,
                                         update_device_plant_info:
                                         DevicePlantPartialUpdateSchema):
@@ -48,21 +48,21 @@ async def update_fields_in_device_plant(id_device: str,
                                                        update_device_plant_info.dict())
 
 
-@app.put("/device-plant/{id_device}", response_model=DevicePlantSchema)
+@app.put("/measurements/device-plant/{id_device}", response_model=DevicePlantSchema)
 async def update_all_in_device_plant(id_device: str,
                                      device_plant_info: DevicePlantUpdateSchema):
     return await controller.handle_update_device_plant(id_device,
                                                        device_plant_info.dict())
 
 
-@app.get("/device-plant", response_model=List[DevicePlantSchema])
+@app.get("/measurements/device-plant", response_model=List[DevicePlantSchema])
 async def get_device_plant(
     query_params: DevicePlantQueryParams = Depends(DevicePlantQueryParams)
 ):
     return controller.handle_get_device_plant(query_params.get_query_params())
 
 
-@app.delete("/device-plant/{id}")
+@app.delete("/measurements/device-plant/{id}")
 async def delete_device_plant_relation(
     type_id: Literal["id_device", "id_plant"],
     id: str
