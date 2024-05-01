@@ -3,4 +3,5 @@ __pycache__/
 .idea/
 /venv/*
 *.lock
-app/firebase-credentials.json
+.DS_Store
+vscode/

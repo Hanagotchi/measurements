@@ -1,13 +1,14 @@
 import os
 import logging
+import json
 from service.rabbitmq.consumer import Consumer
-import firebase_admin
-from firebase_admin import credentials
+from firebase_admin import credentials, initialize_app
 
 
 def main():
-    cred = credentials.Certificate("firebase-credentials.json")
-    firebase_admin.initialize_app(cred)
+    firebase_credentials = os.environ.get('FIREBASE_CREDENTIALS')
+    cred = credentials.Certificate(json.loads(firebase_credentials))
+    initialize_app(cred)
     logger = logging.getLogger("rabbitmq_consumer")
     # DEBUG, INFO, WARNING, ERROR, CRITICAL
     logging_level = os.environ.get("LOGGING_LEVEL")
