@@ -3,3 +3,5 @@ __pycache__/
 .idea/
 /venv/*
 *.lock
+.DS_Store
+vscode/

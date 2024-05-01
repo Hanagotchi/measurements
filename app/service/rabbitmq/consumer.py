@@ -17,6 +17,7 @@ from database.models.measurement import Measurement
 from database.database import SQLAlchemyClient
 from resources.parser import apply_rules
 from os import environ
+from firebase_admin import messaging
 
 Base = declarative_base(
     metadata=MetaData(schema=environ.get("POSTGRES_SCHEMA", "measurements_service"))
@@ -68,11 +69,17 @@ class Consumer:
 
     def send_notification(self, id_user, measurement, error, details):
         logger.info(LoggerMessages.USER_NOTIFIED.format(id_user))
-        logger.info(
-            "New notification: {}: {} sent on {}".format(
-                error, details, measurement.time_stamp
-            )
-        )
+
+        print(f"details: {details}")
+        print(f"error: {error}")
+
+        if measurement.device_token is not None:
+            message = messaging.Message(
+                notification=messaging.Notification(title="Estado de tu planta",
+                                                    body="details"),
+                token=measurement.device_token,
+                )
+            messaging.send(message)
 
     def apply_rules(self, measurement,  device_plant):
         deviated_parameters = apply_rules(measurement, device_plant.plant_type)
