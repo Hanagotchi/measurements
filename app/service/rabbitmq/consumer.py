@@ -1,4 +1,5 @@
 import json
+from ..users import UsersService
 from exceptions.logger_messages import LoggerMessages
 import pydantic
 import logging
@@ -34,6 +35,7 @@ class Consumer:
         self.__queue_name = queue_name
         self.__middleware = Middleware()
         self.__sqlAlchemyClient = SQLAlchemyClient()
+        self.__users = UsersService()
 
     def run(self):
         self.__middleware.create_queue(self.__queue_name)
@@ -49,6 +51,9 @@ class Consumer:
         except Exception as err:
             logger.error(f"{err} - {type(err)}")
             raise RowNotFoundError(measurement_from_rabbit.id_device, "DEVICE_PLANT")
+
+    async def obtain_user(self, user_id):
+        return await self.__users.get_user(user_id)
 
     def check_package(self, measurement):
         empty_values = []
@@ -102,11 +107,14 @@ class Consumer:
             return f"Los siguientes parámetros están altos: {high_msg}."
 
     def send_notification(self, id_user, measurement, error, details):
+        device_plant = self.obtain_device_plant(measurement)
+
+        user = self.obtain_user(device_plant.id_user)
 
         notification_body = self.generate_notification_body(error)
 
         try:
-            if measurement.device_token is not None:
+            if user.device_token is not None:
                 message = messaging.Message(
                     notification=messaging.Notification(title="Estado de tu planta",
                                                         body=notification_body),
