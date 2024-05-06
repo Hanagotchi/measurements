@@ -192,7 +192,8 @@ class Consumer:
             logger.warn(LoggerMessages.DEVIATING_PARAMETERS)
             logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
 
-            asyncio.run(self.send_notification(device_plant.id_user, measurement, err, body))
+            asyncio.run(self.send_notification(device_plant.id_user, measurement,
+                                               err, body))
 
         if device_plant is not None and measurement is not None:
             try:
