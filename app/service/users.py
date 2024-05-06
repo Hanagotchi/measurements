@@ -24,7 +24,9 @@ class UsersService():
                     USERS_SERVICE_URL + f"/users/{user_id}"
                 )
                 if response.status_code == codes.OK:
-                    return UserSchema(**response.json())
+                    message = response.json()["message"]
+                    return UserSchema(id=message["id"], name=message["name"],
+                                      device_token=message["device_token"])
                 elif response.status_code == codes.NOT_FOUND:
                     return None
                 else:

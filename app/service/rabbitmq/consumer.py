@@ -1,3 +1,4 @@
+import asyncio
 import json
 from ..users import UsersService
 from exceptions.logger_messages import LoggerMessages
@@ -19,6 +20,7 @@ from database.database import SQLAlchemyClient
 from resources.parser import apply_rules
 from os import environ
 from firebase_admin import messaging
+
 
 Base = declarative_base(
     metadata=MetaData(schema=environ.get("POSTGRES_SCHEMA", "measurements_service"))
@@ -106,10 +108,10 @@ class Consumer:
         elif high_msg:
             return f"Los siguientes parámetros están altos: {high_msg}."
 
-    def send_notification(self, id_user, measurement, error, details):
+    async def send_notification(self, id_user, measurement, error, details):
         device_plant = self.obtain_device_plant(measurement)
 
-        user = self.obtain_user(device_plant.id_user)
+        user = await self.obtain_user(device_plant.id_user)
 
         notification_body = self.generate_notification_body(error)
 
@@ -190,7 +192,7 @@ class Consumer:
             logger.warn(LoggerMessages.DEVIATING_PARAMETERS)
             logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
 
-            self.send_notification(device_plant.id_user, measurement, err, body)
+            asyncio.run(self.send_notification(device_plant.id_user, measurement, err, body))
 
         if device_plant is not None and measurement is not None:
             try:
