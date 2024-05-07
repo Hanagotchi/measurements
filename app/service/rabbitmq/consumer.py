@@ -120,11 +120,12 @@ class Consumer:
                 message = messaging.Message(
                     notification=messaging.Notification(title="Estado de tu planta",
                                                         body=notification_body),
-                    token=measurement.device_token)
+                    token=user.device_token)
                 messaging.send(message)
             logger.info(LoggerMessages.USER_NOTIFIED.format(id_user))
 
-        except Exception:
+        except Exception as e:
+            logger.info(e)
             pass
 
     def apply_rules(self, measurement,  device_plant):
