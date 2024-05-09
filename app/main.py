@@ -15,6 +15,7 @@ from schemas.device_plant import (
 )
 from query_params.QueryParams import DevicePlantQueryParams
 
+
 app = FastAPI()
 repository = MeasurementsRepository()
 service = MeasurementsService(repository)

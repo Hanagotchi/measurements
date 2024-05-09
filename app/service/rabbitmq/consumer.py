@@ -1,4 +1,6 @@
+import asyncio
 import json
+from ..users import UsersService
 from exceptions.logger_messages import LoggerMessages
 import pydantic
 import logging
@@ -19,6 +21,7 @@ from resources.parser import apply_rules
 from os import environ
 from firebase_admin import messaging
 
+
 Base = declarative_base(
     metadata=MetaData(schema=environ.get("POSTGRES_SCHEMA", "measurements_service"))
 )
@@ -34,6 +37,7 @@ class Consumer:
         self.__queue_name = queue_name
         self.__middleware = Middleware()
         self.__sqlAlchemyClient = SQLAlchemyClient()
+        self.__users = UsersService()
 
     def run(self):
         self.__middleware.create_queue(self.__queue_name)
@@ -50,6 +54,9 @@ class Consumer:
             logger.error(f"{err} - {type(err)}")
             raise RowNotFoundError(measurement_from_rabbit.id_device, "DEVICE_PLANT")
 
+    async def obtain_user(self, user_id):
+        return await self.__users.get_user(user_id)
+
     def check_package(self, measurement):
         empty_values = []
         if measurement.temperature is None:
@@ -64,22 +71,62 @@ class Consumer:
         if measurement.humidity is None:
             empty_values.append("humidity")
 
+        if measurement.id_device is None:
+            empty_values.append("id_device")
+
         if len(empty_values) > 0:
             raise EmptyPackageError(empty_values)
 
-    def send_notification(self, id_user, measurement, error, details):
-        logger.info(LoggerMessages.USER_NOTIFIED.format(id_user))
+    def generate_notification_body(self, error):
+        parameters = {
+            'temperature': 'temperatura',
+            'humidity': 'humedad',
+            'light': 'luz',
+            'watering': 'riego'
+        }
 
-        print(f"details: {details}")
-        print(f"error: {error}")
+        low_parameters = []
+        high_parameters = []
+        error_dict = error.parameters.dict()
 
-        if measurement.device_token is not None:
-            message = messaging.Message(
-                notification=messaging.Notification(title="Estado de tu planta",
-                                                    body="details"),
-                token=measurement.device_token,
-                )
-            messaging.send(message)
+        for param, value in error_dict.items():
+            if value == 'lower':
+                low_parameters.append(parameters.get(param, param))
+            elif value == 'higher':
+                high_parameters.append(parameters.get(param, param))
+
+        low_msg = ", ".join(f"{param}" for param in low_parameters)
+        high_msg = ", ".join(f"{param}" for param in high_parameters)
+
+        if low_msg and high_msg:
+            return (
+                f"Los siguientes parámetros están bajos: {low_msg}. "
+                f"Y los siguientes están altos: {high_msg}."
+            )
+        elif low_msg:
+            return f"Los siguientes parámetros están bajos: {low_msg}."
+        elif high_msg:
+            return f"Los siguientes parámetros están altos: {high_msg}."
+
+    async def send_notification(self, id_user, measurement, error, details):
+        device_plant = self.obtain_device_plant(measurement)
+
+        user = await self.obtain_user(device_plant.id_user)
+
+        notification_body = self.generate_notification_body(error)
+
+        try:
+            if user.device_token is not None:
+                message = messaging.Message(
+                    notification=messaging.Notification(title="Estado de tu planta",
+                                                        body=notification_body),
+                    token=user.device_token)
+                messaging.send(message)
+            logger.info(LoggerMessages.USER_NOTIFIED.format(id_user))
+
+        except Exception as e:
+            logger.info(e)
+            pass
 
     def apply_rules(self, measurement,  device_plant):
         deviated_parameters = apply_rules(measurement, device_plant.plant_type)
@@ -136,19 +183,18 @@ class Consumer:
             )
             logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
 
-            device_plant = None  # For not saving the measurement.
+            device_plant = None
         except EmptyPackageError as err:
             logger.warn(LoggerMessages.EMPTY_PACKAGE_RECEIVED)
             logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
 
-            self.send_notification(device_plant.id_user, measurement, err, body)
-
-            measurement = None  # For not saving the measurement.
+            measurement = None
         except DeviatedParametersError as err:
             logger.warn(LoggerMessages.DEVIATING_PARAMETERS)
             logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
 
-            self.send_notification(device_plant.id_user, measurement, err, body)
+            asyncio.run(self.send_notification(device_plant.id_user, measurement,
+                                               err, body))
 
         if device_plant is not None and measurement is not None:
             try:

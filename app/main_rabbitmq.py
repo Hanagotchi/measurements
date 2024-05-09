@@ -1,3 +1,4 @@
+import asyncio
 import os
 import logging
 import json
@@ -14,9 +15,14 @@ def main():
     logging_level = os.environ.get("LOGGING_LEVEL")
     queue_name = os.environ.get("QUEUE_NAME")
     initialize_log(logging_level)
+    loop = asyncio.get_event_loop()
     consumer = Consumer(queue_name)
-    logger.info("[RABBITMQ] Starting consumer...")
     consumer.run()
+    try:
+        loop.run_forever()
+    finally:
+        loop.close()
+    logger.info("[RABBITMQ] Starting consumer...")
 
 
 def initialize_log(logging_level):

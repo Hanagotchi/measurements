@@ -36,4 +36,3 @@ class MeasurementReadingSchema(Measurement):
     """
     id_device: str
     time_stamp: str
-    device_token: Optional[str]
