@@ -12,9 +12,11 @@ class MeasurementsController:
         self.measurements_service = measurements_service
         self.plants_service = plants_service
 
-    def handle_get_plant_last_measurement(self,
-                                          id_plant: int) -> MeasurementSavedSchema:
-        measurement = self.measurements_service.get_plant_last_measurement(id_plant)
+    async def handle_get_plant_last_measurement(self,
+                                                id_plant: int,
+                                                token: str) -> MeasurementSavedSchema:
+        measurement = await self.measurements_service.get_plant_last_measurement(
+            id_plant, token)
         return measurement
 
     async def handle_create_device_plant_relation(self, device_plant: dict):

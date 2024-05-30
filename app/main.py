@@ -27,8 +27,7 @@ logger.setLevel("DEBUG")
 
 
 async def get_access_token(x_access_token: str = Header(...)):
-    print(f"Token: {x_access_token}")
-    return x_access_token
+    return x_access_token.split(" ")[1]
 
 
 @app.get("/")
@@ -37,8 +36,8 @@ async def root():
 
 
 @app.get("/measurements/{id_plant}/last", response_model=MeasurementSavedSchema)
-async def get_plant_measurements(id_plant: int):
-    return controller.handle_get_plant_last_measurement(id_plant)
+async def get_plant_measurements(id_plant: int, token: str = Depends(get_access_token)):
+    return await controller.handle_get_plant_last_measurement(id_plant, token)
 
 
 @app.post("/measurements/device-plant", response_model=DevicePlantSchema)
@@ -66,9 +65,6 @@ async def get_device_plant(
     query_params: DevicePlantQueryParams = Depends(DevicePlantQueryParams),
     token: str = Depends(get_access_token)
 ):
-    print(f"Token: {token}")
-    token = token.split(" ")[1]
-    print(f"Token stripped: {token}")
     return await controller.handle_get_device_plant(query_params.get_query_params(),
                                                     token)
 

@@ -11,7 +11,11 @@ class MeasurementsService:
     def __init__(self, measurements_repository: MeasurementsRepository):
         self.measurements_repository = measurements_repository
 
-    def get_plant_last_measurement(self, id_plant):
+    async def get_plant_last_measurement(self, id_plant, token):
+        user_id = await UsersService.get_user_id(token)
+        owner_id = self.__get_plant_owner(id_plant)
+        if owner_id != user_id:
+            raise UserUnauthorized
         last_measurement = self.measurements_repository.get_plant_last_measurement(
             id_plant)
         if not last_measurement:
@@ -52,7 +56,6 @@ class MeasurementsService:
     async def get_device_plant(self, token: str, query_params: dict = None,
                                device_id: str = None):
         user_id = await UsersService.get_user_id(token)
-        print(f"User performing request ID: {user_id}")
         if device_id:
             result = self.measurements_repository.find_by_device_id(device_id)
             if user_id != result.get("id_user"):
@@ -75,3 +78,7 @@ class MeasurementsService:
             result_rowcount = self.measurements_repository.delete_by_field(type_id, id)
 
         return result_rowcount if result_rowcount else None
+
+    def __get_plant_owner(self, plant_id: int) -> int:
+        plant = self.measurements_repository.find_by_plant_id(plant_id)
+        return plant.get("id_user") if plant else None
