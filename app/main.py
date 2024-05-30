@@ -69,7 +69,8 @@ async def get_device_plant(
     print(f"Token: {token}")
     token = token.split(" ")[1]
     print(f"Token stripped: {token}")
-    return controller.handle_get_device_plant(query_params.get_query_params())
+    return await controller.handle_get_device_plant(query_params.get_query_params(),
+                                                    token)
 
 
 @app.delete("/measurements/device-plant/{id}")

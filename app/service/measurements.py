@@ -1,9 +1,10 @@
 from fastapi import status
 from fastapi.responses import JSONResponse
 from repository.measurements import MeasurementsRepository
-from exceptions.MeasurementsException import PlantNotFound
+from exceptions.MeasurementsException import PlantNotFound, UserUnauthorized
 from schemas.measurement import MeasurementSavedSchema
 from resources.parser import apply_rules
+from external.Users import UsersService
 
 
 class MeasurementsService:
@@ -48,15 +49,23 @@ class MeasurementsService:
             self.measurements_repository.rollback()
             raise err
 
-    def get_device_plant(self, query_params: dict = None, device_id: str = None):
+    async def get_device_plant(self, token: str, query_params: dict = None,
+                               device_id: str = None):
+        user_id = await UsersService.get_user_id(token)
+        print(f"User performing request ID: {user_id}")
         if device_id:
-            return self.measurements_repository.find_by_device_id(device_id)
+            result = self.measurements_repository.find_by_device_id(device_id)
+            if user_id != result.get("id_user"):
+                raise UserUnauthorized
+            return result
         id_plant = query_params.get("id_plant", None)
         limit = query_params.get("limit")
         if id_plant:
             result = self.measurements_repository.find_by_plant_id(id_plant)
+            if user_id != result.get("id_user"):
+                raise UserUnauthorized
             return result
-        return self.measurements_repository.find_all(limit)
+        return self.measurements_repository.find_by_user_id(user_id, limit)
 
     def delete_device_plant_relation(self, type_id, id):
         result_rowcount = 0

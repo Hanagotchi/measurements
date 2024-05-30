@@ -68,6 +68,16 @@ class MeasurementsRepository:
             return None
 
     @withSQLExceptionsHandle()
+    def find_by_user_id(self, user_id: int, limit: int) -> Optional[List[DevicePlant]]:
+        try:
+            query = select(DevicePlant).where(
+                DevicePlant.id_user == user_id).limit(limit)
+            results = self.session.scalars(query).all()
+            return [self.__device_plant_to_dict(result) for result in results]
+        except NoResultFound:
+            return None
+
+    @withSQLExceptionsHandle()
     def update_device_plant(self,
                             id_device: str,
                             id_plant: Optional[int],

@@ -42,7 +42,7 @@ class MeasurementsController:
                                          update_device_plant_info: dict):
         plant_id = update_device_plant_info.get("id_plant")
         if not plant_id:
-            device_plant = self.measurements_service.get_device_plant(
+            device_plant = await self.measurements_service.get_device_plant(
                 id_device=id_device)
         else:
             plant = await self.plants_service.get_plant(
@@ -55,9 +55,9 @@ class MeasurementsController:
             content=device_plant
         )
 
-    def handle_get_device_plant(self, query_params: dict):
-        device_plant = self.measurements_service.get_device_plant(
-            query_params=query_params)
+    async def handle_get_device_plant(self, query_params: dict, token: str):
+        device_plant = await self.measurements_service.get_device_plant(
+            token, query_params=query_params)
         if not device_plant:
             return JSONResponse(
                 status_code=status.HTTP_204_NO_CONTENT,
