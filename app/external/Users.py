@@ -40,3 +40,21 @@ class UsersService():
                 status_code=e.response.status_code,
                 detail=e.response.content.decode(),
             )
+
+    @staticmethod
+    async def get_user_id(token: str) -> int:
+        try:
+            async with AsyncClient() as client:
+                response = await client.post(
+                    USERS_SERVICE_URL + "/users/token", json={"token": token}
+                )
+                response.raise_for_status()
+                user_id = response.json().get("user_id")
+                return user_id
+
+        except HTTPStatusError as e:
+            logger.error("Error while getting user ID: " + str(e))
+            raise HTTPException(
+                status_code=e.response.status_code,
+                detail=e.response.content.decode(),
+            )

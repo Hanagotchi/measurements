@@ -1,10 +1,10 @@
 import logging
 from typing import List, Literal
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Header
 
 from controller.measurements import MeasurementsController
 from service.measurements import MeasurementsService
-from service.plants import PlantsService
+from external.Plants import PlantsService
 from repository.measurements import MeasurementsRepository
 from schemas.measurement import MeasurementSavedSchema
 from schemas.device_plant import (
@@ -24,6 +24,11 @@ controller = MeasurementsController(service, plants_service)
 
 logger = logging.getLogger("measurements")
 logger.setLevel("DEBUG")
+
+
+async def get_access_token(x_access_token: str = Header(...)):
+    print(f"Token: {x_access_token}")
+    return x_access_token
 
 
 @app.get("/")
@@ -58,8 +63,12 @@ async def update_all_in_device_plant(id_device: str,
 
 @app.get("/measurements/device-plant", response_model=List[DevicePlantSchema])
 async def get_device_plant(
-    query_params: DevicePlantQueryParams = Depends(DevicePlantQueryParams)
+    query_params: DevicePlantQueryParams = Depends(DevicePlantQueryParams),
+    token: str = Depends(get_access_token)
 ):
+    print(f"Token: {token}")
+    token = token.split(" ")[1]
+    print(f"Token stripped: {token}")
     return controller.handle_get_device_plant(query_params.get_query_params())
 
 
