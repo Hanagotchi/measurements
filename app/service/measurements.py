@@ -48,7 +48,6 @@ class MeasurementsService:
     async def update_device_plant(self, id_device, plant, plant_id, token):
         user_id = await UsersService.get_user_id(token)
         plant_owner = await self.__get_plant_owner(plant_id)
-        print(f"plant_owner: {plant_owner}, user_id: {user_id}")
         if plant_owner != user_id:
             raise UserUnauthorized
         if not plant:
@@ -68,7 +67,6 @@ class MeasurementsService:
         user_id = await UsersService.get_user_id(token)
         if device_id:
             result = self.measurements_repository.find_by_device_id(device_id)
-            print(f"user_id: {user_id}, result: {result['id_user']}")
             if user_id != result.get("id_user"):
                 raise UserUnauthorized
             return result
@@ -81,13 +79,17 @@ class MeasurementsService:
             return result
         return self.measurements_repository.find_by_user_id(user_id, limit)
 
-    def delete_device_plant_relation(self, type_id, id):
-        result_rowcount = 0
-        if type_id == "id_device":
-            result_rowcount = self.measurements_repository.delete_by_field(type_id, id)
+    async def delete_device_plant_relation(self, type_id, id, token: str):
+        user_id = await UsersService.get_user_id(token)
+        if type_id == 'id_device':
+            owner = self.measurements_repository.find_by_device_id(id).get("id_user")
         else:
-            result_rowcount = self.measurements_repository.delete_by_field(type_id, id)
+            owner = await self.__get_plant_owner(id)
 
+        if owner != user_id:
+            raise UserUnauthorized
+
+        result_rowcount = self.measurements_repository.delete_by_field(type_id, id)
         return result_rowcount if result_rowcount else None
 
     async def __get_plant_owner(self, plant_id: int) -> int:

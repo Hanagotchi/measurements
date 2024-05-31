@@ -59,9 +59,11 @@ async def update_fields_in_device_plant(id_device: str,
 
 @app.put("/measurements/device-plant/{id_device}", response_model=DevicePlantSchema)
 async def update_all_in_device_plant(id_device: str,
-                                     device_plant_info: DevicePlantUpdateSchema):
+                                     device_plant_info: DevicePlantUpdateSchema,
+                                     token: str = Depends(get_access_token)):
     return await controller.handle_update_device_plant(id_device,
-                                                       device_plant_info.dict())
+                                                       device_plant_info.dict(),
+                                                       token)
 
 
 @app.get("/measurements/device-plant", response_model=List[DevicePlantSchema])
@@ -76,6 +78,7 @@ async def get_device_plant(
 @app.delete("/measurements/device-plant/{id}")
 async def delete_device_plant_relation(
     type_id: Literal["id_device", "id_plant"],
-    id: str
+    id: str,
+    token: str = Depends(get_access_token)
 ):
-    return controller.handle_delete_device_plant_relation(type_id, id)
+    return await controller.handle_delete_device_plant_relation(type_id, id, token)

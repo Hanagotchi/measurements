@@ -69,8 +69,10 @@ class MeasurementsController:
             content=device_plant
         )
 
-    def handle_delete_device_plant_relation(self, type_id, id):
-        response = self.measurements_service.delete_device_plant_relation(type_id, id)
+    async def handle_delete_device_plant_relation(self, type_id, id, token: str):
+        response = await self.measurements_service.delete_device_plant_relation(type_id,
+                                                                                id,
+                                                                                token)
         if response:
             return JSONResponse(
                 status_code=status.HTTP_200_OK,
