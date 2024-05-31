@@ -50,9 +50,11 @@ async def create_device_plant_relation(device_plant: DevicePlantCreateSchema,
 @app.patch("/measurements/device-plant/{id_device}", response_model=DevicePlantSchema)
 async def update_fields_in_device_plant(id_device: str,
                                         update_device_plant_info:
-                                        DevicePlantPartialUpdateSchema):
+                                        DevicePlantPartialUpdateSchema,
+                                        token: str = Depends(get_access_token)):
     return await controller.handle_update_device_plant(id_device,
-                                                       update_device_plant_info.dict())
+                                                       update_device_plant_info.dict(),
+                                                       token)
 
 
 @app.put("/measurements/device-plant/{id_device}", response_model=DevicePlantSchema)

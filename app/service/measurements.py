@@ -14,7 +14,7 @@ class MeasurementsService:
 
     async def get_plant_last_measurement(self, id_plant, token):
         user_id = await UsersService.get_user_id(token)
-        owner_id = self.__get_plant_owner(id_plant)
+        owner_id = await self.__get_plant_owner(id_plant)
         if owner_id != user_id:
             raise UserUnauthorized
         last_measurement = self.measurements_repository.get_plant_last_measurement(
@@ -45,7 +45,12 @@ class MeasurementsService:
             self.measurements_repository.rollback()
             raise err
 
-    def update_device_plant(self, id_device, plant, plant_id):
+    async def update_device_plant(self, id_device, plant, plant_id, token):
+        user_id = await UsersService.get_user_id(token)
+        plant_owner = await self.__get_plant_owner(plant_id)
+        print(f"plant_owner: {plant_owner}, user_id: {user_id}")
+        if plant_owner != user_id:
+            raise UserUnauthorized
         if not plant:
             raise PlantNotFound(plant_id)
         try:
@@ -63,6 +68,7 @@ class MeasurementsService:
         user_id = await UsersService.get_user_id(token)
         if device_id:
             result = self.measurements_repository.find_by_device_id(device_id)
+            print(f"user_id: {user_id}, result: {result['id_user']}")
             if user_id != result.get("id_user"):
                 raise UserUnauthorized
             return result
