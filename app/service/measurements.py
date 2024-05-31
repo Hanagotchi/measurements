@@ -5,6 +5,7 @@ from exceptions.MeasurementsException import PlantNotFound, UserUnauthorized
 from schemas.measurement import MeasurementSavedSchema
 from resources.parser import apply_rules
 from external.Users import UsersService
+from external.Plants import PlantsService
 
 
 class MeasurementsService:
@@ -28,9 +29,13 @@ class MeasurementsService:
         )
         return last_measurement
 
-    def create_device_plant_relation(self, plant, device_plant):
+    async def create_device_plant_relation(self, plant, device_plant, token):
         if not plant:
             return None
+        user_id = await UsersService.get_user_id(token)
+        plant_owner = await self.__get_plant_owner(plant.id)
+        if plant_owner != user_id:
+            raise UserUnauthorized
         try:
             device_plant = self.measurements_repository.create_device_plant_relation(
                 plant, device_plant
@@ -79,6 +84,6 @@ class MeasurementsService:
 
         return result_rowcount if result_rowcount else None
 
-    def __get_plant_owner(self, plant_id: int) -> int:
-        plant = self.measurements_repository.find_by_plant_id(plant_id)
-        return plant.get("id_user") if plant else None
+    async def __get_plant_owner(self, plant_id: int) -> int:
+        plant = await PlantsService.get_plant(plant_id)
+        return plant.id_user if plant else None

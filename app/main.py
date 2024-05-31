@@ -41,8 +41,10 @@ async def get_plant_measurements(id_plant: int, token: str = Depends(get_access_
 
 
 @app.post("/measurements/device-plant", response_model=DevicePlantSchema)
-async def create_device_plant_relation(device_plant: DevicePlantCreateSchema):
-    return await controller.handle_create_device_plant_relation(device_plant.dict())
+async def create_device_plant_relation(device_plant: DevicePlantCreateSchema,
+                                       token: str = Depends(get_access_token)):
+    return await controller.handle_create_device_plant_relation(device_plant.dict(),
+                                                                token)
 
 
 @app.patch("/measurements/device-plant/{id_device}", response_model=DevicePlantSchema)

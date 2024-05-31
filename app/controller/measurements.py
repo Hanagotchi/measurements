@@ -19,19 +19,18 @@ class MeasurementsController:
             id_plant, token)
         return measurement
 
-    async def handle_create_device_plant_relation(self, device_plant: dict):
-        plant_id = device_plant["id_plant"]
+    async def handle_create_device_plant_relation(self, device_plant: dict, token: str):
+        plant_id = device_plant.get("id_plant")
         plant = await self.plants_service.get_plant(plant_id)
-        device_plant = self.measurements_service.create_device_plant_relation(
+        device_plant = await self.measurements_service.create_device_plant_relation(
             plant,
-            device_plant)
+            device_plant, token)
         if not device_plant:
             return JSONResponse(
-                status_code=status.HTTP_400_BAD_REQUEST,
+                status_code=status.HTTP_404_NOT_FOUND,
                 content={
                     "plant_id": (
-                        "Could not found any plant "
-                        f"with id {device_plant.get('id_plant')}"
+                        "Could not find any plant"
                     )
                 },
             )
