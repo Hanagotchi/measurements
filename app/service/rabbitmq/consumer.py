@@ -1,22 +1,22 @@
-import asyncio
 import json
-import pydantic
 import logging
-
+import asyncio
+import pydantic
+from os import environ
 from pydantic import ValidationError
 from sqlalchemy import MetaData
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from os import environ
 from firebase_admin import messaging
 
 from external.Users import UsersService
 from ..common.middleware import Middleware
 from database.models.measurement import Measurement
 from database.database import SQLAlchemyClient
-from resources.parser import apply_rules
+from resources.parser_rules import apply_rules
 from schemas.measurement import MeasurementReadingSchema
+from resources.parser_messages import parse_message
 from exceptions.logger_messages import LoggerMessages
 from exceptions.invalid_insertion import InvalidInsertionError
 from exceptions.deviating_parameters import DeviatedParametersError
@@ -25,25 +25,27 @@ from exceptions.row_not_found import RowNotFoundError
 
 
 Base = declarative_base(
-    metadata=MetaData(schema=environ.get("POSTGRES_SCHEMA", "measurements_service"))
+    metadata=MetaData(
+        schema=environ.get("POSTGRES_SCHEMA", "measurements_service")
+        )
 )
 logger = logging.getLogger("rabbitmq_consumer")
-logging.getLogger("pika").setLevel(logging.WARNING)
 dbUrl = environ.get("DATABASE_URL").replace("postgres://", "postgresql://", 1)
 engine = create_engine(dbUrl, echo=True, future=True)
 session = Session(engine)
 
-
 class Consumer:
-    def __init__(self, queue_name):
-        self.__queue_name = queue_name
+    def __init__(self, topic):
         self.__middleware = Middleware()
         self.__sqlAlchemyClient = SQLAlchemyClient()
         self.__users = UsersService()
+        self.__last_measurements = {}
+        self.__topic = topic
 
     def run(self):
-        self.__middleware.create_queue(self.__queue_name)
-        self.__middleware.listen_on(self.__queue_name, self.__callback)
+        self.__middleware.listen_on(self.__callback, self.__topic)
+        self.__middleware.connect()
+        self.__middleware.run()
 
     def obtain_device_plant(self, measurement_from_rabbit):
         try:
@@ -54,12 +56,13 @@ class Consumer:
             return dp
         except Exception as err:
             logger.error(f"{err} - {type(err)}")
-            raise RowNotFoundError(measurement_from_rabbit.id_device, "DEVICE_PLANT")
+            raise RowNotFoundError(measurement_from_rabbit.id_device,
+                                   "DEVICE_PLANT")
 
     async def obtain_user(self, user_id):
         return await self.__users.get_user(user_id)
 
-    def check_package(self, measurement):
+    def check_package(self, measurement: MeasurementReadingSchema):
         empty_values = []
         if measurement.temperature is None:
             empty_values.append("temperature")
@@ -70,7 +73,9 @@ class Consumer:
         if measurement.light is None:
             empty_values.append("light")
 
-        if measurement.humidity is None:
+        # Nuestro sensor no mide humedad del ambiente!
+        if measurement.humidity is None and not measurement.id_device.\
+                startswith("sensor_"):
             empty_values.append("humidity")
 
         if measurement.id_device is None:
@@ -113,16 +118,16 @@ class Consumer:
     async def send_notification(self, id_user, measurement, error, details):
         device_plant = self.obtain_device_plant(measurement)
 
-        user = await self.obtain_user(device_plant.id_user)
-
-        notification_body = self.generate_notification_body(error)
-
         try:
+            user = await self.obtain_user(device_plant.id_user)
+            notification_body = self.generate_notification_body(error)
             if user.device_token is not None:
                 message = messaging.Message(
-                    notification=messaging.Notification(title="Estado de tu planta",
-                                                        body=notification_body),
-                    token=user.device_token)
+                    notification=messaging.Notification(
+                        title="Estado de tu planta", body=notification_body
+                    ),
+                    token=user.device_token,
+                )
                 messaging.send(message)
             logger.info(LoggerMessages.USER_NOTIFIED.format(id_user))
 
@@ -130,7 +135,7 @@ class Consumer:
             logger.info(e)
             pass
 
-    def apply_rules(self, measurement,  device_plant):
+    def apply_rules(self, measurement: MeasurementReadingSchema, device_plant):
         deviated_parameters = apply_rules(measurement, device_plant.plant_type)
         if deviated_parameters.hasDeviations():
             raise DeviatedParametersError(deviated_parameters)
@@ -156,16 +161,25 @@ class Consumer:
         except Exception as err:
             logger.error(f"{err} - {type(err)}")
             self.__sqlAlchemyClient.rollback()
-            raise InvalidInsertionError(measurement_from_rabbit, "MEAUSUREMENT")
+            raise InvalidInsertionError(measurement_from_rabbit,
+                                        "MEAUSUREMENT")
 
-    def __callback(self, body):
+    def __callback(self, client, userdata, msg):
         device_plant = None
-        measurement = None
+        measurement, body = parse_message(self.__last_measurements, msg)
+        if measurement is None:
+            return
 
+        # 1) flood de notificaciones !!
+        # 2) light!!!!
+        # 3) humedad! no enviamos notificacion cuando llega none...??? [OK]
+        # 4) convertir int a float en simulador y microservice [OK]
+
+        # 5) refactor decode_body [OK]
         try:
-            measurement = MeasurementReadingSchema(**json.loads(body))
             logger.info(
-                LoggerMessages.NEW_PACKAGE_RECEIVED.format(measurement.id_device)
+                LoggerMessages.NEW_PACKAGE_RECEIVED
+                .format(measurement.id_device)
             )
             logger.debug(LoggerMessages.PACKAGE_DETAIL.format(body))
 
@@ -181,7 +195,8 @@ class Consumer:
             logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
         except RowNotFoundError as err:
             logger.warn(
-                LoggerMessages.ROW_NOT_FOUND.format(err.primary_key, err.name_table)
+                LoggerMessages.ROW_NOT_FOUND.format(err.primary_key,
+                                                    err.name_table)
             )
             logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
 
@@ -195,7 +210,8 @@ class Consumer:
             logger.warn(LoggerMessages.DEVIATING_PARAMETERS)
             logger.debug(LoggerMessages.ERROR_DETAILS.format(err, body))
 
-            asyncio.run(self.send_notification(device_plant.id_user, measurement,
+            asyncio.run(self.send_notification(device_plant.id_user,
+                                               measurement,
                                                err, body))
 
         if device_plant is not None and measurement is not None:

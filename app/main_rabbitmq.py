@@ -10,13 +10,15 @@ def main():
     firebase_credentials = os.environ.get('FIREBASE_CREDENTIALS')
     cred = credentials.Certificate(json.loads(firebase_credentials))
     initialize_app(cred)
+    
     logger = logging.getLogger("rabbitmq_consumer")
-    # DEBUG, INFO, WARNING, ERROR, CRITICAL
-    logging_level = os.environ.get("LOGGING_LEVEL")
-    queue_name = os.environ.get("QUEUE_NAME")
+    logging_level = os.environ.get("LOGGING_LEVEL", "info")
     initialize_log(logging_level)
+    
     loop = asyncio.get_event_loop()
-    consumer = Consumer(queue_name)
+    
+    topic_name = os.environ.get("MQTT_TOPIC", "measurements")
+    consumer = Consumer(topic_name)
     consumer.run()
     try:
         loop.run_forever()
