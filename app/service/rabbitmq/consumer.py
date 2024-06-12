@@ -14,9 +14,9 @@ from external.Users import UsersService
 from ..common.middleware import Middleware
 from database.models.measurement import Measurement
 from database.database import SQLAlchemyClient
-from resources.parser_rules import apply_rules
+from resources.rule_parser import apply_rules
 from schemas.measurement import MeasurementReadingSchema
-from resources.parser_messages import parse_message
+from resources.message_parser import parse_message
 from exceptions.logger_messages import LoggerMessages
 from exceptions.invalid_insertion import InvalidInsertionError
 from exceptions.deviating_parameters import DeviatedParametersError

@@ -46,6 +46,7 @@ HUMIDITY_RULES_MAP = {
     3: (is_deviated, (5, 25)),
 }
 
+# FOOT CANDLE (ftc)
 LIGHT_RULES_MAP = {
     1: (is_deviated, (350, 500)),
     2: (is_deviated, (200, 350)),
@@ -93,7 +94,8 @@ def apply_rules(
             lambda x: apply_temperature_rule(x, register.temperature)),
         humidity=eval_deviation(
             h_values,
-            lambda x: apply_humidity_rule(x, register.humidity)),
+            lambda x: apply_humidity_rule(x, register.humidity))
+        if register.humidity else None,
         light=eval_deviation(
             l_values,
             lambda x: apply_light_rule(x, register.light)),
