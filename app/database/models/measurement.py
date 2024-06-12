@@ -1,5 +1,10 @@
-from sqlalchemy import CheckConstraint, Integer, String, SmallInteger
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import (
+    CheckConstraint,
+    Integer,
+    String,
+    SmallInteger,
+    Float
+)from sqlalchemy.orm import Mapped, mapped_column
 from typing import Optional
 from database.models.base import Base
 from os import environ
@@ -16,9 +21,9 @@ class Measurement(Base):
     id_plant: Mapped[int] = mapped_column(Integer)
     plant_type: Mapped[str] = mapped_column(String(70))
     time_stamp: Mapped[str] = mapped_column(String(50))
-    temperature: Mapped[Optional[int]] = mapped_column(SmallInteger)
+    temperature: Mapped[Optional[float]] = mapped_column(Float)
     humidity: Mapped[Optional[int]] = mapped_column(SmallInteger)
-    light: Mapped[Optional[int]] = mapped_column(SmallInteger)
+    light: Mapped[Optional[float]] = mapped_column(Float)
     watering: Mapped[Optional[int]] = mapped_column(SmallInteger)
 
     __table_args__ = (

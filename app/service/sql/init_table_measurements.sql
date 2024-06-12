@@ -5,12 +5,12 @@
             id_plant INT,
             plant_type VARCHAR(70),
             time_stamp VARCHAR(50),
-            temperature SMALLINT,
+            temperature FLOAT,
             humidity SMALLINT CHECK (
                 humidity >= 0
                 AND humidity <= 100
             ),
-            light SMALLINT CHECK (light >= 0),
+            light FLOAT CHECK (light >= 0),
             watering SMALLINT CHECK (
                 watering >= 0
                 AND watering <= 100
