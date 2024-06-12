@@ -4,7 +4,8 @@ from sqlalchemy import (
     String,
     SmallInteger,
     Float
-)from sqlalchemy.orm import Mapped, mapped_column
+)
+from sqlalchemy.orm import Mapped, mapped_column
 from typing import Optional
 from database.models.base import Base
 from os import environ
