@@ -1,7 +1,7 @@
+import os
 import logging
 from typing import List, Literal
 from fastapi import FastAPI, Depends, Header
-
 from controller.measurements import MeasurementsController
 from service.measurements import MeasurementsService
 from external.Plants import PlantsService
@@ -23,11 +23,12 @@ plants_service = PlantsService()
 controller = MeasurementsController(service, plants_service)
 
 logger = logging.getLogger("measurements")
-logger.setLevel("DEBUG")
+logging_level = os.environ.get("LOGGING_LEVEL", "DEBUG")
+logger.setLevel(logging_level)
 
 
 async def get_access_token(x_access_token: str = Header(...)):
-    return x_access_token.split(" ")[1]
+    return x_access_token.split(" ")[0]
 
 
 @app.get("/")
