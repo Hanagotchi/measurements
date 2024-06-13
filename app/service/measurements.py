@@ -1,5 +1,5 @@
 from fastapi import status
-from fastapi.responses import JSONResponse
+from fastapi.responses import Response
 from repository.measurements import MeasurementsRepository
 from exceptions.MeasurementsException import PlantNotFound, UserUnauthorized
 from schemas.measurement import MeasurementSavedSchema
@@ -20,7 +20,7 @@ class MeasurementsService:
         last_measurement = self.measurements_repository.get_plant_last_measurement(
             id_plant)
         if not last_measurement:
-            return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content={})
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
         last_measurement = MeasurementSavedSchema.model_validate(
             last_measurement.__dict__)
         last_measurement.deviations = apply_rules(

@@ -1,5 +1,5 @@
-from fastapi import status
-from fastapi.responses import JSONResponse
+from fastapi import status, Response
+from fastapi.responses import JSONResponse, Response
 from fastapi.encoders import jsonable_encoder
 from service.measurements import MeasurementsService
 from external.Plants import PlantsService
@@ -60,10 +60,7 @@ class MeasurementsController:
         device_plant = await self.measurements_service.get_device_plant(
             token, query_params=query_params)
         if not device_plant:
-            return JSONResponse(
-                status_code=status.HTTP_204_NO_CONTENT,
-                content={}
-            )
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content=device_plant
@@ -80,7 +77,4 @@ class MeasurementsController:
                     "message": "Device plant relation deleted successfully.",
                     }),
                 )
-        return JSONResponse(
-                status_code=status.HTTP_204_NO_CONTENT,
-                content={}
-            )
+        return Response(status_code=status.HTTP_204_NO_CONTENT)

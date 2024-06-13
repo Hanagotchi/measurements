@@ -31,6 +31,8 @@ class PercentageDifferenceTriggerRestriction(NotificationRestriction):
         self.restriction = restriction
 
     def is_satisfied(self, measurement, last_measurement, time_difference):
+        if last_measurement == 0:
+            return True
         significant_change = 100 * abs((
             measurement - last_measurement) / last_measurement)
         return significant_change >= self.restriction

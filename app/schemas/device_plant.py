@@ -7,7 +7,7 @@ class DevicePlantCreateSchema(BaseModel):
     id_plant: int = Field(..., gt=0)
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "id_device": "1",
                 "id_plant": 1,
@@ -20,7 +20,7 @@ class DevicePlantSchema(DevicePlantCreateSchema):
     id_user: int = Field(..., gt=0)
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "id_device": "1",
                 "id_plant": 1,
@@ -34,7 +34,7 @@ class DevicePlantUpdateSchema(BaseModel):
     id_plant: int = Field(..., gt=0)
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "id_plant": 1,
             }
@@ -45,7 +45,7 @@ class DevicePlantPartialUpdateSchema(BaseModel):
     id_plant: Optional[int] = Field(default=None, gt=0)
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "id_plant": 1,
             }
