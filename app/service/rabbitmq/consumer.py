@@ -1,6 +1,8 @@
 import json
 import logging
 import asyncio
+from resources.notification_checker import (is_ready_to_notify,
+                                            update_last_notifications)
 import pydantic
 from os import environ
 from pydantic import ValidationError
@@ -9,7 +11,6 @@ from sqlalchemy.orm import Session
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from firebase_admin import messaging
-
 from external.Users import UsersService
 from ..common.middleware import Middleware
 from database.models.measurement import Measurement
@@ -34,12 +35,14 @@ dbUrl = environ.get("DATABASE_URL").replace("postgres://", "postgresql://", 1)
 engine = create_engine(dbUrl, echo=True, future=True)
 session = Session(engine)
 
+
 class Consumer:
     def __init__(self, topic):
         self.__middleware = Middleware()
         self.__sqlAlchemyClient = SQLAlchemyClient()
         self.__users = UsersService()
         self.__last_measurements = {}
+        self.__last_notifications = {}
         self.__topic = topic
 
     def run(self):
@@ -52,7 +55,7 @@ class Consumer:
             dp = self.__sqlAlchemyClient.find_by_device_id(
                 measurement_from_rabbit.id_device
             )
-            logger.info(LoggerMessages.ROW_FOUND.format("DEVICE_PLANT", dp))
+            logger.debug(LoggerMessages.ROW_FOUND.format("DEVICE_PLANT", dp))
             return dp
         except Exception as err:
             logger.error(f"{err} - {type(err)}")
@@ -115,8 +118,18 @@ class Consumer:
         elif high_msg:
             return f"Los siguientes parámetros están altos: {high_msg}."
 
-    async def send_notification(self, id_user, measurement, error, details):
+    async def send_notification(self,
+                                id_user,
+                                measurement: MeasurementReadingSchema,
+                                error: DeviatedParametersError,
+                                details):
+
         device_plant = self.obtain_device_plant(measurement)
+
+        if not is_ready_to_notify(self.__last_notifications,
+                                  device_plant.id_plant,
+                                  measurement):
+            return
 
         try:
             user = await self.obtain_user(device_plant.id_user)
@@ -129,10 +142,15 @@ class Consumer:
                     token=user.device_token,
                 )
                 messaging.send(message)
+                update_last_notifications(self.__last_notifications,
+                                          device_plant,
+                                          measurement,
+                                          error)
+
             logger.info(LoggerMessages.USER_NOTIFIED.format(id_user))
 
         except Exception as e:
-            logger.info(e)
+            logger.error(f"Error sending notification. Detail: {e}")
             pass
 
     def apply_rules(self, measurement: MeasurementReadingSchema, device_plant):
@@ -170,12 +188,6 @@ class Consumer:
         if measurement is None:
             return
 
-        # 1) flood de notificaciones !!
-        # 2) light!!!!
-        # 3) humedad! no enviamos notificacion cuando llega none...??? [OK]
-        # 4) convertir int a float en simulador y microservice [OK]
-
-        # 5) refactor decode_body [OK]
         try:
             logger.info(
                 LoggerMessages.NEW_PACKAGE_RECEIVED
