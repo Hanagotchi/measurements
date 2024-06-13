@@ -1,10 +1,9 @@
-from datetime import datetime, timedelta, timezone
 import json
-from schemas.measurement import MeasurementReadingSchema
 import logging
+from datetime import datetime, timedelta, timezone
+from schemas.measurement import MeasurementReadingSchema
 
-
-ARG_DELTA_TZ = timedelta(hours=-3)
+ARG_TZ = timezone(timedelta(hours=-3), name="America/Argentina/Buenos_Aires")
 LUX_TO_FTC = 10.764
 logger = logging.getLogger("rabbitmq_consumer")
 
@@ -15,9 +14,8 @@ def convert_lux_to_ftc(lux):
 
 def get_formatted_time(time_stamp):
     if isinstance(time_stamp, int):
-        utc_time = datetime.fromtimestamp(time_stamp, tz=timezone.utc)
-        local_time = utc_time + ARG_DELTA_TZ
-        formatted_time = local_time.strftime("%Y-%m-%d %H:%M:%S")
+        formatted_time = datetime.fromtimestamp(time_stamp,
+                                                tz=ARG_TZ).isoformat()
     else:
         formatted_time = time_stamp
 
@@ -52,15 +50,15 @@ def parse_message(last_measurements, msg):
         return None, None
 
     formatted_time = get_formatted_time(decoded_json.get("time_stamp"))
-    
+
     item_json = generate_item_json(decoded_json, formatted_time)
-    
+
     parse_light(item_json)
-    
+
     save_measurement_if_not_exist(last_measurements, item_json)
-    
+
     update_empty_field_in_last_measurement(last_measurements, item_json)
-    
+
     update_fields_in_measurement(last_measurements, item_json)
 
     item = MeasurementReadingSchema(**item_json)
@@ -70,6 +68,7 @@ def parse_message(last_measurements, msg):
 
     return None, None
 
+
 def update_fields_in_measurement(last_measurements, item_json):
     for key, value in item_json.items():
         if value is None:
@@ -77,10 +76,12 @@ def update_fields_in_measurement(last_measurements, item_json):
         else:
             last_measurements[item_json["id_device"]][key] = value
 
+
 def update_empty_field_in_last_measurement(last_measurements, item_json):
     for k, v in last_measurements[item_json["id_device"]].items():
         if not v and item_json[k]:
             last_measurements[item_json["id_device"]][k] = item_json[k]
+
 
 def save_measurement_if_not_exist(last_measurements, item_json):
     if last_measurements.get(item_json["id_device"], None) is None:
