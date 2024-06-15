@@ -3,6 +3,7 @@ import time
 import logging
 from os import environ
 from datetime import datetime
+from resources.message_parser import ARG_TZ
 from schemas.measurement import MeasurementReadingSchema
 from dotenv import load_dotenv
 
@@ -20,6 +21,8 @@ class MinTimeBetweenNotificationsRestriction(NotificationRestriction):
         self.restriction = restriction
 
     def is_satisfied(self, measurement, last_measurement, time_difference):
+        logger.debug(f"Time difference: {time_difference}. "
+                     f"Actual restriction: {self.restriction}")
         return time_difference >= self.restriction
 
     def __str__(self):
@@ -31,6 +34,9 @@ class PercentageDifferenceTriggerRestriction(NotificationRestriction):
         self.restriction = restriction
 
     def is_satisfied(self, measurement, last_measurement, time_difference):
+        logger.debug(f"Last measurement: {last_measurement} | "
+                     f"Actual measurement: {measurement}.")
+
         if last_measurement == 0:
             return True
         significant_change = 100 * abs((
@@ -47,6 +53,9 @@ class TimeRangeRestriction(NotificationRestriction):
         self.end_hour = end_hour
 
     def is_satisfied(self, measurement, last_measurement, time_difference):
+        logger.debug(f"Current hour: {datetime.now().hour}. "
+                     f"Start hour: {self.start_hour}. "
+                     f"End hour: {self.end_hour}.")
         current_hour = datetime.now().hour
         return self.start_hour <= current_hour < self.end_hour
 
@@ -121,6 +130,8 @@ class NotificationChecker:
                                info_last_notification):
         restrictions = self.type_restrictions.get(type_name)
         if not restrictions:
+            logger.debug(f"No restrictions found for '{type_name}'... " +
+                         "Ready to notify!")
             return True
 
         time_now = int(time.time())
@@ -130,12 +141,19 @@ class NotificationChecker:
                                     f"{type_name}_sent_time"
                                 ]
         except Exception:
-            logger.debug(f"Never notified a measurement of {type_name}. " +
+            logger.debug(f"Never notified a measurement of '{type_name}'. " +
                          "Ready to notify!")
             return True
 
         if not last_time_of_type:
+            logger.debug(f"Never notified a measurement of '{type_name}'. " +
+                         "Ready to notify!")
             return True
+
+        logger.debug(f"The last '{type_name}' notification has been sent on " +
+                     f"'{datetime.fromtimestamp(last_time_of_type, tz=ARG_TZ).isoformat()}'. " +
+                     "Actual time is " +
+                     f"'{datetime.fromtimestamp(time_now, tz=ARG_TZ).isoformat()}'")
 
         time_difference = time_now - last_time_of_type
         return check_all_restrictions(type_name,
@@ -155,13 +173,16 @@ def check_all_restrictions(type_name,
                                     last_measurement,
                                     time_difference):
             logger.debug(f"The restriction '{format(restriction)}' for" +
-                         "the attribute '{type_name}' was fulfilled. " +
-                         "Ready to notify!")
+                         f" the attribute '{type_name}' was fulfilled. " +
+                         "Checking next restriction...")
         else:
             logger.debug(f"The restriction '{format(restriction)}' for" +
-                         "the attribute '{type_name}' was not fulfilled. " +
+                         f" the attribute '{type_name}' was not fulfilled. " +
                          "Not ready to notify!")
             return False
+
+    logger.debug(f"All restrictions for the attribute '{type_name}' " +
+                 "were fulfilled. Ready to notify!")
     return True
 
 
@@ -169,75 +190,71 @@ notification_restrictions = NotificationChecker()
 
 
 def is_ready_to_notify(last_notifications,
+                       error,
                        id_plant,
                        measurement:
                        MeasurementReadingSchema):
     last_notification, info_last_notification = last_notifications.\
         get(id_plant, (None, None))
     if last_notification is None or info_last_notification is None:
+        sent_time = int(time.time())
+        init_time_info = {
+                    "temperature_sent_time": sent_time,
+                    "humidity_sent_time": sent_time,
+                    "light_sent_time": sent_time,
+                    "watering_sent_time": sent_time
+            }
+        last_notifications[id_plant] = (measurement,
+                                        init_time_info)
+
         logger.info("No previous notification has been found. " +
-                    "Ready to notify!")
+                    "First notification. Ready to notify for " +
+                    f"plant '{id_plant}'")
         return True
 
-    if notification_restrictions.satisfies_restrictions(
+    deviated_param = error.parameters.dict()
+    temp_result = notification_restrictions.satisfies_restrictions(
         "temperature",
         measurement.temperature,
         last_notification.temperature,
-        info_last_notification
-    ):
-        return True
-
-    if notification_restrictions.satisfies_restrictions(
+        info_last_notification) and deviated_param["temperature"] is not None
+    light_result = notification_restrictions.satisfies_restrictions(
         "light",
         measurement.light,
         last_notification.light,
-        info_last_notification
-    ):
-        return True
-
-    if (measurement.humidity and
-        last_notification.humidity and
-        notification_restrictions.satisfies_restrictions(
-            "humidity",
-            measurement.humidity,
-            last_notification.humidity,
-            info_last_notification)):
-        return True
-
-    if notification_restrictions.satisfies_restrictions(
+        info_last_notification) and deviated_param["light"] is not None
+    humidity_result = (measurement.humidity and
+                       last_notification.humidity and
+                       notification_restrictions.satisfies_restrictions(
+                        "humidity",
+                        measurement.humidity,
+                        last_notification.humidity,
+                        info_last_notification)
+                       ) and deviated_param["humidity"] is not None
+    watering_result = notification_restrictions.satisfies_restrictions(
         "watering",
         measurement.watering,
         last_notification.watering,
         info_last_notification
-    ):
-        return True
+    ) and deviated_param["watering"] is not None
 
-    logger.info("No field with significant change has been found " +
-                "or restrictions were not satisfied. Not ready to notify!")
-    return False
-
-
-def update_last_notifications(last_notifications,
-                              device_plant,
-                              measurement,
-                              error):
     sent_time = int(time.time())
-    error_dict = error.parameters.dict()
+    if temp_result:
+        info_last_notification["temperature_sent_time"] = sent_time
+    if light_result:
+        info_last_notification["light_sent_time"] = sent_time
+    if humidity_result:
+        info_last_notification["humidity_sent_time"] = sent_time
+    if watering_result:
+        info_last_notification["watering_sent_time"] = sent_time
 
-    if last_notifications.get(device_plant.id_plant) is not None:
-        actual_time = last_notifications[device_plant.id_plant][1]
-        itms = error_dict.items()
-        for param, desviated in itms:
-            if desviated is not None:
-                actual_time[str(param) + "_sent_time"] = sent_time
-        last_notifications[device_plant.id_plant] = (measurement,
-                                                     actual_time)
+    if (temp_result or light_result or humidity_result or watering_result):
+        logger.info("Any restriction is satisfied AND exists any deviated " +
+                    f"field. Ready to notify for plant '{id_plant}'")
+        last_notifications[id_plant] = (measurement, info_last_notification)
+        return True
     else:
-        init_time_info = {
-                            "temperature_sent_time": sent_time,
-                            "humidity_sent_time": sent_time,
-                            "light_sent_time": sent_time,
-                            "watering_sent_time": sent_time
-                         }
-        last_notifications[device_plant.id_plant] = (measurement,
-                                                     init_time_info)
+        logger.info("Restrictions were not satisfied or there are no " +
+                    "deviated field. Not ready to notify for " +
+                    f"plant '{id_plant}'")
+        return False

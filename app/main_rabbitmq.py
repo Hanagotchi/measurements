@@ -4,9 +4,11 @@ import logging
 import json
 from service.rabbitmq.consumer import Consumer
 from firebase_admin import credentials, initialize_app
+from dotenv import load_dotenv
 
 
 def main():
+    load_dotenv()
     firebase_credentials = os.environ.get('FIREBASE_CREDENTIALS')
     cred = credentials.Certificate(json.loads(firebase_credentials))
     initialize_app(cred)
