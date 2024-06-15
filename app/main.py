@@ -14,14 +14,15 @@ from schemas.device_plant import (
     DevicePlantUpdateSchema
 )
 from query_params.QueryParams import DevicePlantQueryParams
+from dotenv import load_dotenv
 
 
+load_dotenv()
 app = FastAPI()
 repository = MeasurementsRepository()
 service = MeasurementsService(repository)
 plants_service = PlantsService()
 controller = MeasurementsController(service, plants_service)
-
 logger = logging.getLogger("measurements")
 logging_level = os.environ.get("LOGGING_LEVEL", "DEBUG")
 logger.setLevel(logging_level)

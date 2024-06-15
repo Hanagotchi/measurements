@@ -1,8 +1,7 @@
 import json
 import logging
 import asyncio
-from resources.notification_checker import (is_ready_to_notify,
-                                            update_last_notifications)
+from resources.notification_checker import is_ready_to_notify
 import pydantic
 from os import environ
 from pydantic import ValidationError
@@ -12,6 +11,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from firebase_admin import messaging
 from external.Users import UsersService
+from external.Plants import PlantsService
 from ..common.middleware import Middleware
 from database.models.measurement import Measurement
 from database.database import SQLAlchemyClient
@@ -127,25 +127,24 @@ class Consumer:
         device_plant = self.obtain_device_plant(measurement)
 
         if not is_ready_to_notify(self.__last_notifications,
+                                  error,
                                   device_plant.id_plant,
                                   measurement):
             return
 
         try:
             user = await self.obtain_user(device_plant.id_user)
-            notification_body = self.generate_notification_body(error)
             if user.device_token is not None:
+                notification_body = self.generate_notification_body(error)
+                plant = await PlantsService.get_plant(device_plant.id_plant)
+                name_plant = plant.name if plant else "tu planta"
                 message = messaging.Message(
                     notification=messaging.Notification(
-                        title="Estado de tu planta", body=notification_body
+                        title=f"Estado de {name_plant}", body=notification_body
                     ),
                     token=user.device_token,
                 )
                 messaging.send(message)
-                update_last_notifications(self.__last_notifications,
-                                          device_plant,
-                                          measurement,
-                                          error)
 
             logger.info(LoggerMessages.USER_NOTIFIED.format(id_user))
 
