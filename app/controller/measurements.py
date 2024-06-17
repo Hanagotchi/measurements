@@ -47,7 +47,6 @@ class MeasurementsController:
                                          update_device_plant_info: dict,
                                          token: str):
 
-
         plant_id = update_device_plant_info.get("id_plant")
         if not plant_id:
             device_plant = await self.measurements_service.get_device_plant(
