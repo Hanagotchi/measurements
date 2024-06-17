@@ -10,8 +10,7 @@ from schemas.measurement import MeasurementSavedSchema
 from schemas.device_plant import (
     DevicePlantSchema,
     DevicePlantCreateSchema,
-    DevicePlantPartialUpdateSchema,
-    DevicePlantUpdateSchema
+    DevicePlantPartialUpdateSchema
 )
 from query_params.QueryParams import DevicePlantQueryParams
 from dotenv import load_dotenv
@@ -28,8 +27,9 @@ logging_level = os.environ.get("LOGGING_LEVEL", "DEBUG")
 logger.setLevel(logging_level)
 
 
+# I'll leave this as a getter, in case its implementation changes
 async def get_access_token(x_access_token: str = Header(...)):
-    return x_access_token.split(" ")[0]
+    return x_access_token
 
 
 @app.get("/")
@@ -37,35 +37,32 @@ async def root():
     return {"message": "measurments service"}
 
 
-@app.get("/measurements/{id_plant}/last", response_model=MeasurementSavedSchema)
-async def get_plant_measurements(id_plant: int, token: str = Depends(get_access_token)):
+@app.get("/measurements/{id_plant}/last",
+         response_model=MeasurementSavedSchema)
+async def get_plant_measurements(id_plant: int,
+                                 token: str = Depends(get_access_token)):
     return await controller.handle_get_plant_last_measurement(id_plant, token)
 
 
 @app.post("/measurements/device-plant", response_model=DevicePlantSchema)
 async def create_device_plant_relation(device_plant: DevicePlantCreateSchema,
                                        token: str = Depends(get_access_token)):
-    return await controller.handle_create_device_plant_relation(device_plant.dict(),
-                                                                token)
+    return await controller.\
+        handle_create_device_plant_relation(device_plant.dict(),
+                                            token)
 
 
-@app.patch("/measurements/device-plant/{id_device}", response_model=DevicePlantSchema)
+@app.patch("/measurements/device-plant/{id_device}",
+           response_model=DevicePlantSchema)
 async def update_fields_in_device_plant(id_device: str,
                                         update_device_plant_info:
                                         DevicePlantPartialUpdateSchema,
-                                        token: str = Depends(get_access_token)):
-    return await controller.handle_update_device_plant(id_device,
-                                                       update_device_plant_info.dict(),
-                                                       token)
-
-
-@app.put("/measurements/device-plant/{id_device}", response_model=DevicePlantSchema)
-async def update_all_in_device_plant(id_device: str,
-                                     device_plant_info: DevicePlantUpdateSchema,
-                                     token: str = Depends(get_access_token)):
-    return await controller.handle_update_device_plant(id_device,
-                                                       device_plant_info.dict(),
-                                                       token)
+                                        token: str = Depends(get_access_token)
+                                        ):
+    return await controller.\
+        handle_update_device_plant(id_device,
+                                   update_device_plant_info.dict(),
+                                   token)
 
 
 @app.get("/measurements/device-plant", response_model=List[DevicePlantSchema])
@@ -73,8 +70,9 @@ async def get_device_plant(
     query_params: DevicePlantQueryParams = Depends(DevicePlantQueryParams),
     token: str = Depends(get_access_token)
 ):
-    return await controller.handle_get_device_plant(query_params.get_query_params(),
-                                                    token)
+    return await controller.\
+        handle_get_device_plant(query_params.get_query_params(),
+                                token)
 
 
 @app.delete("/measurements/device-plant/{id}")
@@ -83,4 +81,6 @@ async def delete_device_plant_relation(
     id: str,
     token: str = Depends(get_access_token)
 ):
-    return await controller.handle_delete_device_plant_relation(type_id, id, token)
+    return await controller.handle_delete_device_plant_relation(type_id,
+                                                                id,
+                                                                token)
