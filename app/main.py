@@ -27,7 +27,7 @@ logger.setLevel("DEBUG")
 
 
 async def get_access_token(x_access_token: str = Header(...)):
-    return x_access_token.split(" ")[1]
+    return x_access_token.split(" ")[0]
 
 
 @app.get("/")
