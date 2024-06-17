@@ -25,9 +25,9 @@ controller = MeasurementsController(service, plants_service)
 logger = logging.getLogger("measurements")
 logger.setLevel("DEBUG")
 
-
+# I'll leave this as a getter, in case its implementation changes
 async def get_access_token(x_access_token: str = Header(...)):
-    return x_access_token.split(" ")[0]
+    return x_access_token
 
 
 @app.get("/")
@@ -54,15 +54,6 @@ async def update_fields_in_device_plant(id_device: str,
                                         token: str = Depends(get_access_token)):
     return await controller.handle_update_device_plant(id_device,
                                                        update_device_plant_info.dict(),
-                                                       token)
-
-
-@app.put("/measurements/device-plant/{id_device}", response_model=DevicePlantSchema)
-async def update_all_in_device_plant(id_device: str,
-                                     device_plant_info: DevicePlantUpdateSchema,
-                                     token: str = Depends(get_access_token)):
-    return await controller.handle_update_device_plant(id_device,
-                                                       device_plant_info.dict(),
                                                        token)
 
 
