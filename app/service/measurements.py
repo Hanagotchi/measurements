@@ -45,7 +45,8 @@ class MeasurementsService:
             self.measurements_repository.rollback()
             raise err
 
-    async def update_device_plant(self, id_device, plant, token):
+    async def update_device_plant(self, id_device, plant_id, token):
+        plant = await PlantsService.get_plant(plant_id)
         user_id = await UsersService.get_user_id(token)
         plant_owner = plant.id_user
         

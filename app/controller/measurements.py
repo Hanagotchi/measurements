@@ -49,9 +49,8 @@ class MeasurementsController:
             device_plant = await self.measurements_service.get_device_plant(
                 token, id_device=id_device)
         else:
-            new_plant = await self.plants_service.get_plant(plant_id)
             device_plant = await self.measurements_service.update_device_plant(
-                id_device, new_plant, token)
+                id_device, plant_id, token)
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content=device_plant
