@@ -1,5 +1,5 @@
 from fastapi import status, Response
-from fastapi.responses import JSONResponse, Response
+from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 from service.measurements import MeasurementsService
 from external.Plants import PlantsService
