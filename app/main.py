@@ -10,8 +10,7 @@ from schemas.measurement import MeasurementSavedSchema
 from schemas.device_plant import (
     DevicePlantSchema,
     DevicePlantCreateSchema,
-    DevicePlantPartialUpdateSchema,
-    DevicePlantUpdateSchema
+    DevicePlantPartialUpdateSchema
 )
 from query_params.QueryParams import DevicePlantQueryParams
 
@@ -24,6 +23,7 @@ controller = MeasurementsController(service, plants_service)
 
 logger = logging.getLogger("measurements")
 logger.setLevel("DEBUG")
+
 
 # I'll leave this as a getter, in case its implementation changes
 async def get_access_token(x_access_token: str = Header(...)):

@@ -14,17 +14,21 @@ class MeasurementsController:
 
     async def handle_get_plant_last_measurement(self,
                                                 id_plant: int,
-                                                token: str) -> MeasurementSavedSchema:
-        measurement = await self.measurements_service.get_plant_last_measurement(
-            id_plant, token)
+                                                token: str
+                                                ) -> MeasurementSavedSchema:
+        measurement = await self.\
+            measurements_service.get_plant_last_measurement(id_plant, token)
         return measurement
 
-    async def handle_create_device_plant_relation(self, device_plant: dict, token: str):
+    async def handle_create_device_plant_relation(self,
+                                                  device_plant: dict,
+                                                  token: str):
         plant_id = device_plant.get("id_plant")
         plant = await self.plants_service.get_plant(plant_id)
-        device_plant = await self.measurements_service.create_device_plant_relation(
-            plant,
-            device_plant, token)
+        device_plant = await self.\
+            measurements_service.create_device_plant_relation(plant,
+                                                              device_plant,
+                                                              token)
         if not device_plant:
             return JSONResponse(
                 status_code=status.HTTP_404_NOT_FOUND,
