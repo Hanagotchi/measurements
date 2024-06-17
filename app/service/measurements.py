@@ -17,10 +17,11 @@ class MeasurementsService:
         owner_id = await self.__get_plant_owner(id_plant)
         if owner_id != user_id:
             raise UserUnauthorized
-        last_measurement = self.measurements_repository.get_plant_last_measurement(
-            id_plant)
+        last_measurement = \
+            self.measurements_repository.get_plant_last_measurement(id_plant)
         if not last_measurement:
-            return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, content={})
+            return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, 
+                                content=None)
         last_measurement = MeasurementSavedSchema.model_validate(
             last_measurement.__dict__)
         last_measurement.deviations = apply_rules(
