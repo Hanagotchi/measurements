@@ -45,13 +45,22 @@ class MeasurementsService:
             self.measurements_repository.rollback()
             raise err
 
-    async def update_device_plant(self, id_device, plant, plant_id, token):
+    async def update_device_plant(self, id_device, plant, token):
         user_id = await UsersService.get_user_id(token)
-        plant_owner = await self.__get_plant_owner(plant_id)
+        plant_owner = plant.id_user
+        
+        # User is not the new plant owner
         if plant_owner != user_id:
             raise UserUnauthorized
+        
         if not plant:
-            raise PlantNotFound(plant_id)
+            raise PlantNotFound(plant.id)
+        
+        # User is not the old plant owner
+        old_device_plant = self.measurements_repository.find_by_device_id(id_device)
+        if old_device_plant['id_user'] != user_id:
+            raise UserUnauthorized
+        
         try:
             self.measurements_repository.update_device_plant(id_device,
                                                              plant.id,

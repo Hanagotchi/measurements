@@ -42,15 +42,16 @@ class MeasurementsController:
     async def handle_update_device_plant(self, id_device: str,
                                          update_device_plant_info: dict,
                                          token: str):
+
+        
         plant_id = update_device_plant_info.get("id_plant")
         if not plant_id:
             device_plant = await self.measurements_service.get_device_plant(
                 token, id_device=id_device)
         else:
-            plant = await self.plants_service.get_plant(
-                update_device_plant_info.get("id_plant"))
+            new_plant = await self.plants_service.get_plant(plant_id)
             device_plant = await self.measurements_service.update_device_plant(
-                id_device, plant, plant_id, token)
+                id_device, new_plant, token)
         return JSONResponse(
             status_code=status.HTTP_200_OK,
             content=device_plant
