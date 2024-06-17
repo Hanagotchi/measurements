@@ -20,7 +20,7 @@ class MeasurementsService:
         last_measurement = \
             self.measurements_repository.get_plant_last_measurement(id_plant)
         if not last_measurement:
-            return JSONResponse(status_code=status.HTTP_204_NO_CONTENT, 
+            return JSONResponse(status_code=status.HTTP_204_NO_CONTENT,
                                 content=None)
         last_measurement = MeasurementSavedSchema.model_validate(
             last_measurement.__dict__)
@@ -38,9 +38,9 @@ class MeasurementsService:
         if plant_owner != user_id:
             raise UserUnauthorized
         try:
-            device_plant = self.measurements_repository.create_device_plant_relation(
-                plant, device_plant
-                )
+            device_plant = self.measurements_repository.\
+                create_device_plant_relation(plant,
+                                             device_plant)
             return device_plant
         except Exception as err:
             self.measurements_repository.rollback()
@@ -48,32 +48,36 @@ class MeasurementsService:
 
     async def update_device_plant(self, id_device, plant_id, token):
         plant = await PlantsService.get_plant(plant_id)
+        if not plant:
+            raise PlantNotFound(plant.id)
+
         user_id = await UsersService.get_user_id(token)
         plant_owner = plant.id_user
-        
+
         # User is not the new plant owner
         if plant_owner != user_id:
             raise UserUnauthorized
-        
-        if not plant:
-            raise PlantNotFound(plant.id)
-        
+
         # User is not the old plant owner
-        old_device_plant = self.measurements_repository.find_by_device_id(id_device)
+        old_device_plant = self.measurements_repository.\
+            find_by_device_id(id_device)
         if old_device_plant['id_user'] != user_id:
             raise UserUnauthorized
-        
+
         try:
-            self.measurements_repository.update_device_plant(id_device,
-                                                             plant.id,
-                                                             plant.scientific_name,
-                                                             plant.id_user)
+            self.measurements_repository.\
+                update_device_plant(id_device,
+                                    plant.id,
+                                    plant.scientific_name,
+                                    plant.id_user)
             return self.measurements_repository.find_by_device_id(id_device)
         except Exception as err:
             self.measurements_repository.rollback()
             raise err
 
-    async def get_device_plant(self, token: str, query_params: dict = None,
+    async def get_device_plant(self,
+                               token: str,
+                               query_params: dict = None,
                                device_id: str = None):
         user_id = await UsersService.get_user_id(token)
         if device_id:
@@ -93,14 +97,16 @@ class MeasurementsService:
     async def delete_device_plant_relation(self, type_id, id, token: str):
         user_id = await UsersService.get_user_id(token)
         if type_id == 'id_device':
-            owner = self.measurements_repository.find_by_device_id(id).get("id_user")
+            owner = self.measurements_repository.\
+                find_by_device_id(id).get("id_user")
         else:
             owner = await self.__get_plant_owner(id)
 
         if owner != user_id:
             raise UserUnauthorized
 
-        result_rowcount = self.measurements_repository.delete_by_field(type_id, id)
+        result_rowcount = self.measurements_repository.\
+            delete_by_field(type_id, id)
         return result_rowcount if result_rowcount else None
 
     async def __get_plant_owner(self, plant_id: int) -> int:
