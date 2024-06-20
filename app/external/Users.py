@@ -2,6 +2,7 @@ import logging
 from httpx import (
     AsyncClient,
     codes,
+    AsyncHTTPTransport,
     HTTPStatusError
 )
 from os import environ
@@ -13,13 +14,18 @@ logger = logging.getLogger("app")
 logger.setLevel("DEBUG")
 
 USERS_SERVICE_URL = environ["USERS_SERVICE_URL"]
+NUMBER_OF_RETRIES = 3
+TIMEOUT = 10
 
 
 class UsersService():
     @staticmethod
     async def get_user(user_id: int) -> Optional[UserSchema]:
         try:
-            async with AsyncClient() as client:
+            async with AsyncClient(
+                transport=AsyncHTTPTransport(retries=NUMBER_OF_RETRIES),
+                timeout=TIMEOUT
+            ) as client:
                 response = await client.get(
                     USERS_SERVICE_URL + f"/users/{user_id}"
                 )
@@ -44,12 +50,15 @@ class UsersService():
     @staticmethod
     async def get_user_id(token: str) -> int:
         try:
-            async with AsyncClient() as client:
+            async with AsyncClient(
+                transport=AsyncHTTPTransport(retries=NUMBER_OF_RETRIES),
+                timeout=TIMEOUT
+            ) as client:
                 response = await client.post(
                     USERS_SERVICE_URL + "/users/token", json={"token": token}
                 )
                 response.raise_for_status()
-                user_id = response.json().get("user_id")
+                user_id = response.json()["user_id"]
                 return user_id
 
         except HTTPStatusError as e:

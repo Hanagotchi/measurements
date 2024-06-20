@@ -1,9 +1,9 @@
 from fastapi import status
-from fastapi.responses import JSONResponse
+from fastapi.responses import Response
 from repository.measurements import MeasurementsRepository
 from exceptions.MeasurementsException import PlantNotFound, UserUnauthorized
 from schemas.measurement import MeasurementSavedSchema
-from resources.parser import apply_rules
+from resources.rule_parser import apply_rules
 from external.Users import UsersService
 from external.Plants import PlantsService
 
@@ -20,8 +20,7 @@ class MeasurementsService:
         last_measurement = \
             self.measurements_repository.get_plant_last_measurement(id_plant)
         if not last_measurement:
-            return JSONResponse(status_code=status.HTTP_204_NO_CONTENT,
-                                content=None)
+            return Response(status_code=status.HTTP_204_NO_CONTENT)
         last_measurement = MeasurementSavedSchema.model_validate(
             last_measurement.__dict__)
         last_measurement.deviations = apply_rules(
@@ -82,14 +81,18 @@ class MeasurementsService:
         user_id = await UsersService.get_user_id(token)
         if device_id:
             result = self.measurements_repository.find_by_device_id(device_id)
-            if user_id != result.get("id_user"):
+            if not result:
+                return None
+            if user_id != result["id_user"]:
                 raise UserUnauthorized
             return result
-        id_plant = query_params.get("id_plant", None)
+        id_plant = query_params.get("id_plant")
         limit = query_params.get("limit")
         if id_plant:
             result = self.measurements_repository.find_by_plant_id(id_plant)
-            if user_id != result.get("id_user"):
+            if not result:
+                return None
+            if user_id != result["id_user"]:
                 raise UserUnauthorized
             return result
         return self.measurements_repository.find_by_user_id(user_id, limit)

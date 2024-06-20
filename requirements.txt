@@ -6,9 +6,10 @@ psycopg2
 pandas
 httpx
 firebase-admin
+pytz
 
 ### RabbitMQ ###
-pika
+paho-mqtt
 
 ### PostgreSQL ###
 SQLAlchemy

@@ -1,6 +1,7 @@
 import logging
 from httpx import (
     AsyncClient,
+    AsyncHTTPTransport,
     codes,
     HTTPStatusError
 )
@@ -16,13 +17,18 @@ logger = logging.getLogger("app")
 logger.setLevel("DEBUG")
 
 PLANT_SERVICE_URL = environ["PLANT_SERVICE_URL"]
+NUMBER_OF_RETRIES = 3
+TIMEOUT = 10
 
 
 class PlantsService():
     @staticmethod
     async def get_plant(plant_id: int) -> Optional[PlantSchema]:
         try:
-            async with AsyncClient() as client:
+            async with AsyncClient(
+                transport=AsyncHTTPTransport(retries=NUMBER_OF_RETRIES),
+                timeout=TIMEOUT
+            ) as client:
                 response = await client.get(
                     PLANT_SERVICE_URL + f"/plants/{plant_id}"
                 )
@@ -45,7 +51,10 @@ class PlantsService():
     @staticmethod
     async def get_plant_type(botanical_name: str) -> Optional[PlantTypeSchema]:
         try:
-            async with AsyncClient() as client:
+            async with AsyncClient(
+                transport=AsyncHTTPTransport(retries=NUMBER_OF_RETRIES),
+                timeout=TIMEOUT
+            ) as client:
                 response = await client.get(
                     PLANT_SERVICE_URL + f"/plant-type/{botanical_name}"
                 )

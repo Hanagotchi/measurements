@@ -16,9 +16,13 @@ class DeviatedParametersSchema(BaseModel):
 
 
 class Measurement(BaseModel):
-    temperature: Optional[int]
+    temperature: Optional[float]
+    # Humedad del ambiente, nuestro sensor
+    # de Xiaomi hhccjcy01 no lo mide
     humidity: Optional[int]
-    light: Optional[int]
+    light: Optional[float]
+    # Nivel de riego, en nuestro sensor
+    # se mide como moisture
     watering: Optional[int]
 
 
@@ -36,3 +40,8 @@ class MeasurementReadingSchema(Measurement):
     """
     id_device: str
     time_stamp: str
+
+    def is_partial(self) -> bool:
+        return (self.temperature is None or
+                self.light is None or
+                self.watering is None)

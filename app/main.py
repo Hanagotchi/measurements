@@ -1,7 +1,7 @@
+import os
 import logging
 from typing import List, Literal
 from fastapi import FastAPI, Depends, Header
-
 from controller.measurements import MeasurementsController
 from service.measurements import MeasurementsService
 from external.Plants import PlantsService
@@ -13,16 +13,18 @@ from schemas.device_plant import (
     DevicePlantPartialUpdateSchema
 )
 from query_params.QueryParams import DevicePlantQueryParams
+from dotenv import load_dotenv
 
 
+load_dotenv()
 app = FastAPI()
 repository = MeasurementsRepository()
 service = MeasurementsService(repository)
 plants_service = PlantsService()
 controller = MeasurementsController(service, plants_service)
-
 logger = logging.getLogger("measurements")
-logger.setLevel("DEBUG")
+logging_level = os.environ.get("LOGGING_LEVEL", "DEBUG")
+logger.setLevel(logging_level)
 
 
 # I'll leave this as a getter, in case its implementation changes
