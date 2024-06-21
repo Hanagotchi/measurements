@@ -35,7 +35,7 @@ def check_t_rule(
 
 
 def check_l_rule(register, min, max) -> Optional[Literal["lower", "higher"]]:
-    if is_daytime():
+    if not is_daytime():
         return None
     return is_deviated(register, min, max)
 
