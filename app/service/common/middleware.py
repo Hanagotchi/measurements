@@ -65,7 +65,6 @@ class Middleware:
         result = self._client.publish(topic, msg, qos=qos)
         result.wait_for_publish()
         status = result[0]
-        logger.info(f"NOW: {datetime.now()}")
         if status == 0:
             logger.info(f"Succesfully sent message '{msg}' to topic {topic} " +
                         f"with qos {qos} and message id {result[1]}. " +
