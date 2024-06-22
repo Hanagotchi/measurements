@@ -2,7 +2,6 @@ import os
 import time
 import logging
 import paho.mqtt.client as mqtt
-from datetime import datetime
 
 FIRST_RECONNECT_DELAY = 1
 RECONNECT_RATE = 2
