@@ -7,6 +7,10 @@ pandas
 httpx
 firebase-admin
 pytz
+pytest
+mock
+pytest-cov
+mock
 
 ### RabbitMQ ###
 paho-mqtt

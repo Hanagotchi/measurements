@@ -4,13 +4,15 @@ from repository.measurements import MeasurementsRepository
 from exceptions.MeasurementsException import PlantNotFound, UserUnauthorized
 from schemas.measurement import MeasurementSavedSchema
 from resources.rule_parser import apply_rules
-from external.Users import UsersService
 from external.Plants import PlantsService
+from external.Users import UsersService
 
 
 class MeasurementsService:
-    def __init__(self, measurements_repository: MeasurementsRepository):
+    def __init__(self, measurements_repository: MeasurementsRepository, user_service: UsersService, plant_service: PlantsService):
         self.measurements_repository = measurements_repository
+        self.user_service = user_service
+        self.plant_service = plant_service
 
     async def get_plant_last_measurement(self, id_plant, token):
         user_id = await UsersService.get_user_id(token)
@@ -78,7 +80,7 @@ class MeasurementsService:
                                token: str,
                                query_params: dict = None,
                                device_id: str = None):
-        user_id = await UsersService.get_user_id(token)
+        user_id = await self.user_service.get_user_id(token)
         if device_id:
             result = self.measurements_repository.find_by_device_id(device_id)
             if not result:
@@ -113,5 +115,5 @@ class MeasurementsService:
         return result_rowcount if result_rowcount else None
 
     async def __get_plant_owner(self, plant_id: int) -> int:
-        plant = await PlantsService.get_plant(plant_id)
+        plant = await self.plant_service.get_plant(plant_id)
         return plant.id_user if plant else None

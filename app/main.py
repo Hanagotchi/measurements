@@ -5,6 +5,7 @@ from fastapi import FastAPI, Depends, Header
 from controller.measurements import MeasurementsController
 from service.measurements import MeasurementsService
 from external.Plants import PlantsService
+from external.Users import UsersService
 from repository.measurements import MeasurementsRepository
 from schemas.measurement import MeasurementSavedSchema
 from schemas.device_plant import (
@@ -19,8 +20,9 @@ from dotenv import load_dotenv
 load_dotenv()
 app = FastAPI()
 repository = MeasurementsRepository()
-service = MeasurementsService(repository)
+user_service = UsersService()
 plants_service = PlantsService()
+service = MeasurementsService(repository, user_service, plant_service)
 controller = MeasurementsController(service, plants_service)
 logger = logging.getLogger("measurements")
 logging_level = os.environ.get("LOGGING_LEVEL", "DEBUG")
