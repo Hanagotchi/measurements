@@ -15,7 +15,7 @@ class MeasurementsService:
         self.plant_service = plant_service
 
     async def get_plant_last_measurement(self, id_plant, token):
-        user_id = await UsersService.get_user_id(token)
+        user_id = await self.user_service.get_user_id(token)
         owner_id = await self.__get_plant_owner(id_plant)
         if owner_id != user_id:
             raise UserUnauthorized

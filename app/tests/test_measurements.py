@@ -8,7 +8,8 @@ from external.Users import UsersService
 from external.Plants import PlantsService
 from database.models.device_plant import DevicePlant
 from schemas.plant import PlantSchema
-from models.measurement import Measurement
+from pydantic import ValidationError
+from schemas.measurement import MeasurementSavedSchema
 
 device_plant = {
     "id_device": "ax-ex",
@@ -31,15 +32,15 @@ plant = PlantSchema(
     id_user=2
 )
 
-
-measurement = Measurement(
-    id_plant=1,
+measurement = MeasurementSavedSchema(
+    id=1221,
+    id_plant=16,
     plant_type="Thunbergia alata",
     time_stamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-    temperature=24.5,
+    temperature=20.5,
     humidity=55,
-    light=300.0,
-    watering=20
+    light=350.0,
+    watering=60
 )
 
 token='eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ8.eyJ1c2VyX2lkLjo5fQ.qRPlwqqpK30CXwiE5AusCqELWUwH6NRpiTiOGxUrIZK'
@@ -66,7 +67,7 @@ class ServiceTests(unittest.IsolatedAsyncioTestCase):
         mock_user = self._getMock(UsersService, attr_user)
 
         service = MeasurementsService(mock_db, mock_user, Mock())
-        result = await service.get_device_plant(token=token)
+        result = await service.get_device_plant(token=token, query_params={'id_plant': None})
 
         self.assertEqual(len(result), 2)
         mock_db.find_by_user_id.assert_called_once()
@@ -124,7 +125,8 @@ class ServiceTests(unittest.IsolatedAsyncioTestCase):
         service = MeasurementsService(mock_db, mock_user, mock_plants)
         result = await service.get_plant_last_measurement(id_plant=16, token=token)
 
-        self.assertEqual(result, measurement)
+        self.assertEqual(result.id_plant, measurement.id_plant)
+        self.assertTrue(result.deviations.hasDeviations)
         mock_db.get_plant_last_measurement.assert_called_once()
 
 
