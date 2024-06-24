@@ -9,7 +9,12 @@ from external.Users import UsersService
 
 
 class MeasurementsService:
-    def __init__(self, measurements_repository: MeasurementsRepository, user_service: UsersService, plant_service: PlantsService):
+    def __init__(
+        self,
+        measurements_repository: MeasurementsRepository,
+        user_service: UsersService,
+        plant_service: PlantsService
+    ):
         self.measurements_repository = measurements_repository
         self.user_service = user_service
         self.plant_service = plant_service
