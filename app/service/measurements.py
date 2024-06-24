@@ -100,7 +100,7 @@ class MeasurementsService:
         return self.measurements_repository.find_by_user_id(user_id, limit)
 
     async def delete_device_plant_relation(self, type_id, id, token: str):
-        user_id = await UsersService.get_user_id(token)
+        user_id = await self.user_service.get_user_id(token)
         if type_id == 'id_device':
             owner = self.measurements_repository.\
                 find_by_device_id(id).get("id_user")

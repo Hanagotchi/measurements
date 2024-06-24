@@ -241,7 +241,6 @@ class ServiceTests(unittest.IsolatedAsyncioTestCase):
         mock_db.rollback.assert_called_once()
         mock_db.create_device_plant_relation.assert_called_once()
         
-
     async def test_update_nonexisting_device_plant(self):
         attr_plants = {
             "get_plant.return_value": None
@@ -267,4 +266,131 @@ class ServiceTests(unittest.IsolatedAsyncioTestCase):
         service = MeasurementsService(Mock(), mock_user, mock_plants)
 
         with self.assertRaises(UserUnauthorized):
-            await service.update_device_plant(token=token, id_device=16, plant_id="ax-ex")
+            await service.update_device_plant(token=token, id_device="ax-ex", plant_id=16)
+    
+    async def test_update_device_plant(self):
+        attr_db = {
+            "find_by_device_id.return_value": device_plant
+        }
+        mock_db = self._getMock(MeasurementsRepository, attr_db)
+
+        attr_plants = {
+            "get_plant.return_value": plant
+        }
+        mock_plants = self._getMock(PlantsService, attr_plants)
+
+        attr_user = {
+            "get_user_id.return_value": 2
+        }
+        mock_user = self._getMock(UsersService, attr_user)
+
+        service = MeasurementsService(mock_db, mock_user, mock_plants)
+        result = await service.update_device_plant(token=token, id_device="a4x-he", plant_id=16)
+
+        self.assertEqual(result, device_plant)
+        mock_db.update_device_plant.assert_called_once()
+
+    async def test_update_device_plant_raises_exception(self):
+        attr_db = {
+            "find_by_device_id.return_value": device_plant,
+            "update_device_plant.side_effect": Exception(),
+            "rollback.return_value": None
+        }
+        mock_db = self._getMock(MeasurementsRepository, attr_db)
+
+        attr_user = {
+            "get_user_id.return_value": 2
+        }
+        mock_user = self._getMock(UsersService, attr_user)
+
+        attr_plants = {
+            "get_plant.return_value": plant
+        }
+        mock_plants = self._getMock(PlantsService, attr_plants)
+
+        service = MeasurementsService(mock_db, mock_user, mock_plants)
+
+        with self.assertRaises(Exception):
+            result = await service.update_device_plant(token=token, id_device="a4x-he", plant_id=16)
+
+        mock_db.rollback.assert_called_once()
+        mock_db.update_device_plant.assert_called_once()
+
+    async def test_delete_device_plant_by_device_id(self):
+        attr_db = {
+            "find_by_device_id.return_value": device_plant,
+            "delete_by_field.return_value": 1
+        }
+        mock_db = self._getMock(MeasurementsRepository, attr_db)
+
+        attr_user = {
+            "get_user_id.return_value": 2
+        }
+        mock_user = self._getMock(UsersService, attr_user)
+
+        service = MeasurementsService(mock_db, mock_user, Mock())
+        result = await service.delete_device_plant_relation(token=token, type_id="id_device", id="ax-ex")
+
+        self.assertEqual(result, 1)
+        mock_db.delete_by_field.assert_called_once()
+    
+    async def test_delete_device_plant_by_device_id(self):
+        attr_db = {
+            "find_by_device_id.return_value": device_plant,
+            "delete_by_field.return_value": 1
+        }
+        mock_db = self._getMock(MeasurementsRepository, attr_db)
+
+        attr_user = {
+            "get_user_id.return_value": 2
+        }
+        mock_user = self._getMock(UsersService, attr_user)
+
+        service = MeasurementsService(mock_db, mock_user, Mock())
+        result = await service.delete_device_plant_relation(token=token, type_id="id_device", id="ax-ex")
+
+        self.assertEqual(result, 1)
+        mock_db.delete_by_field.assert_called_once()
+    
+    async def test_delete_device_plant_by_plant_id(self):
+        attr_db = {
+            "find_by_device_id.return_value": device_plant,
+            "delete_by_field.return_value": 1
+        }
+        mock_db = self._getMock(MeasurementsRepository, attr_db)
+
+        attr_plants = {
+            "get_plant.return_value": plant
+        }
+        mock_plants = self._getMock(PlantsService, attr_plants)
+
+        attr_user = {
+            "get_user_id.return_value": 5
+        }
+        mock_user = self._getMock(UsersService, attr_user)
+
+        service = MeasurementsService(mock_db, mock_user, mock_plants)
+        with self.assertRaises(UserUnauthorized):
+            await service.delete_device_plant_relation(token=token, type_id="id_plant", id=13)
+    
+    async def test_delete_unauthorized_device_plant_by_plant_id(self):
+        attr_db = {
+            "find_by_device_id.return_value": device_plant,
+            "delete_by_field.return_value": 1
+        }
+        mock_db = self._getMock(MeasurementsRepository, attr_db)
+
+        attr_plants = {
+            "get_plant.return_value": plant
+        }
+        mock_plants = self._getMock(PlantsService, attr_plants)
+
+        attr_user = {
+            "get_user_id.return_value": 5
+        }
+        mock_user = self._getMock(UsersService, attr_user)
+
+        service = MeasurementsService(mock_db, mock_user, mock_plants)
+        with self.assertRaises(UserUnauthorized):
+            await service.delete_device_plant_relation(token=token, type_id="id_plant", id=13)
+
