@@ -34,7 +34,7 @@ class MeasurementsService:
     async def create_device_plant_relation(self, plant, device_plant, token):
         if not plant:
             return None
-        user_id = await UsersService.get_user_id(token)
+        user_id = await self.user_service.get_user_id(token)
         plant_owner = await self.__get_plant_owner(plant.id)
         if plant_owner != user_id:
             raise UserUnauthorized
@@ -48,11 +48,11 @@ class MeasurementsService:
             raise err
 
     async def update_device_plant(self, id_device, plant_id, token):
-        plant = await PlantsService.get_plant(plant_id)
+        plant = await self.plant_service.get_plant(plant_id)
         if not plant:
-            raise PlantNotFound(plant.id)
+            raise PlantNotFound(plant_id)
 
-        user_id = await UsersService.get_user_id(token)
+        user_id = await self.user_service.get_user_id(token)
         plant_owner = plant.id_user
 
         # User is not the new plant owner
