@@ -58,7 +58,7 @@ jobs:
 
       - name: Check coverage
         run: |
-          source .venv/bin/activate
+          source venv/bin/activate
           COVERAGE=$(coverage report | grep 'TOTAL' | awk '{print $4}' | sed 's/%//')
           echo "Coverage: $COVERAGE%"
           if (( $(echo "$COVERAGE < 85" | bc -l) )); then
