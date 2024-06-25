@@ -1,0 +1,58 @@
+name: Tests
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  test:
+    name: Tests microservice
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+        
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.11
+        
+      - name: Create VirtualEnvs
+        run: python3 -m venv venv
+      
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run tests
+        run: |
+          source venv/bin/activate
+          pytest
+          pytest --cache-clear --cov=app/service app/tests/ --cov-report=xml > pytest-coverage.txt
+        env:
+          USERS_SERVICE_URL: "https://users-hanagotchi-13b50c95f2c8.herokuapp.com/"
+          DATABASE_URL: "postgres://pepe"
+          PLANT_SERVICE_URL: "https://plants-hanagotchi-512f2afd17a5.herokuapp.com"
+          PYTHONPATH: ./app
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./coverage.xml
+          directory: ./coverage/reports/
+          flags: unittests
+          env_vars: OS,PYTHON
+          name: codecov-umbrella
+          fail_ci_if_error: false
+          path_to_write_report: ./coverage/codecov_report.txt
+          verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
