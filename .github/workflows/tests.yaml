@@ -59,11 +59,9 @@ jobs:
       - name: Check coverage
         run: |
           source venv/bin/activate
-          COVERAGE=$(coverage report | grep 'TOTAL' | awk '{print $4}' | sed 's/%//')
+          COVERAGE=$(bash <(curl -s https://codecov.io/bash) -f ./coverage.xml -n codecov-umbrella -Z -F unittests | grep 'TOTAL' | awk '{print $4}' | sed 's/%//')
           echo "Coverage: $COVERAGE%"
           if (( $(echo "$COVERAGE < 85" | bc -l) )); then
             echo "Coverage is below 85%!"
             exit 1
           fi
-        env:
-          USERS_SERVICE_URL: dummy:5000
