@@ -28,7 +28,7 @@ jobs:
         run: python3 -m venv venv
 
       - name: Copy CSV file
-        run: cp resources/plants_dataset.csv ./resources/plants_dataset.csv
+        run: cp app/resources/plants_dataset.csv ./app/resources/plants_dataset.csv
 
       - name: Run tests
         run: |
