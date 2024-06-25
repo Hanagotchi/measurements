@@ -35,6 +35,13 @@ def check_t_rule(
         return is_deviated(register, night_value - DELTA, night_value + DELTA)
 
 
+def check_l_rule(register, min, max) -> Optional[Literal["lower", "higher"]]:
+    if not is_daytime():
+        return is_deviated(register, 0, max)
+
+    return is_deviated(register, min, max)
+
+
 TEMP_RULES_MAP = {
     1: (check_t_rule, (10, 18)),
     2: (check_t_rule, (18, 24)),
@@ -49,10 +56,10 @@ HUMIDITY_RULES_MAP = {
 
 # FOOT CANDLE (ftc)
 LIGHT_RULES_MAP = {
-    1: (is_deviated, (350, 500)),
-    2: (is_deviated, (200, 350)),
-    3: (is_deviated, (75, 200)),
-    4: (is_deviated, (25, 75)),
+    1: (check_l_rule, (500, 10000)),
+    2: (check_l_rule, (200, 500)),
+    3: (check_l_rule, (75, 200)),
+    4: (check_l_rule, (25, 75)),
 }
 
 WATERING_RULES_MAP = {
@@ -130,7 +137,4 @@ def apply_humidity_rule(rule, register):
 
 def is_daytime():
     now = datetime.now()
-    current_hour = now.hour
-    daytime_start_hour = 6
-    daytime_end_hour = 18
-    return daytime_start_hour <= current_hour <= daytime_end_hour
+    return 6 <= now.hour <= 18
