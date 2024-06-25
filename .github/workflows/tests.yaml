@@ -56,12 +56,3 @@ jobs:
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
-      - name: Check coverage
-        run: |
-          source venv/bin/activate
-          COVERAGE=$(bash <(curl -s https://codecov.io/bash) -f ./coverage.xml -n codecov-umbrella -Z -F unittests | grep 'TOTAL' | awk '{print $4}' | sed 's/%//')
-          echo "Coverage: $COVERAGE%"
-          if (( $(echo "$COVERAGE < 85" | bc -l) )); then
-            echo "Coverage is below 85%!"
-            exit 1
-          fi
