@@ -3,11 +3,11 @@ name: Tests
 on:
   push:
     branches:
-      - master
+      - main
       - develop
   pull_request:
     branches:
-      - '*'
+      - '**'
 
 jobs:
   test:
@@ -16,25 +16,30 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
         
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
           python-version: 3.11
-       
-      - name: Install Python dependencies
-        run: pip install -r requirements.txt
+        
+      - name: Create VirtualEnvs
+        run: python3 -m venv venv
 
-      - name: Run tests & Coverage file
+      - name: Copy CSV file
+        run: cp resources/plants_dataset.csv ./resources/plants_dataset.csv
+
+      - name: Run tests
         run: |
-          python -m venv venv
-          source venv/bin/activate
-          pytest
-          pytest --cache-clear --cov=app/service app/tests/ --cov-report=xml > pytest-coverage.txt
+          source .venv/bin/activate
+          pytest app/
+          pytest --cov=app/service app/ --cov-report=xml --cov-report=term-missing
         env:
-          DATABASE_URL: postgresql://pepe
-          PYTHONPATH: ./app
-          
+          USERS_SERVICE_URL: "https://users-hanagotchi-13b50c95f2c8.herokuapp.com/"
+          DATABASE_URL: "postgres://pepe"
+          PLANT_SERVICE_URL: "https://plants-hanagotchi-512f2afd17a5.herokuapp.com"
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1
         with:
@@ -44,6 +49,20 @@ jobs:
           flags: unittests
           env_vars: OS,PYTHON
           name: codecov-umbrella
-          fail_ci_if_error: true
+          fail_ci_if_error: false
           path_to_write_report: ./coverage/codecov_report.txt
           verbose: true
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      - name: Check coverage
+        run: |
+          source .venv/bin/activate
+          COVERAGE=$(coverage report | grep 'TOTAL' | awk '{print $4}' | sed 's/%//')
+          echo "Coverage: $COVERAGE%"
+          if (( $(echo "$COVERAGE < 85" | bc -l) )); then
+            echo "Coverage is below 85%!"
+            exit 1
+          fi
+        env:
+          USERS_SERVICE_URL: dummy:5000
