@@ -33,9 +33,8 @@ jobs:
       - name: Run tests
         run: |
           source venv/bin/activate
-          cd app
-          pytest
-          pytest --cov=./service ./ --cov-report=xml --cov-report=term-missing
+          pytest /app
+          pytest --cov=app/service app/ --cov-report=xml --cov-report=term-missing
         env:
           USERS_SERVICE_URL: "https://users-hanagotchi-13b50c95f2c8.herokuapp.com/"
           DATABASE_URL: "postgres://pepe"

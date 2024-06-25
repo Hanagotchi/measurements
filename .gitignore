@@ -6,3 +6,5 @@ __pycache__/
 .DS_Store
 vscode/
 /venv
+*.pyc
+firebase-credentials.json

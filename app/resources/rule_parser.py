@@ -1,12 +1,13 @@
 from typing import Literal, Optional
 import pandas as pd
 from datetime import datetime
-
-
 from schemas.measurement import DeviatedParametersSchema, Measurement
 
-file_path = 'resources/plants_dataset.csv'
-df = pd.read_csv(file_path)
+try:
+    df = pd.read_csv('resources/plants_dataset.csv')
+except FileNotFoundError:
+    df = pd.read_csv('app/resources/plants_dataset.csv')
+
 DELTA = 5
 
 
