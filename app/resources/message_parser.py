@@ -45,6 +45,12 @@ def parse_message(last_measurements, msg):
     logger.info(f"Received message: {decoded} on topic {msg.topic}")
     decoded_json = json.loads(decoded)
 
+    if decoded_json.get("id_device", "").startswith("sensor_1"):
+        if decoded_json.get("humidity"):
+            decoded_json["watering"] = decoded_json["humidity"]
+            del decoded_json["humidity"]
+            logger.warn("HOTFIX: humidity field renamed to watering")
+
     if not decoded_json.get("time_stamp"):
         logger.error("Message discarded: no time_stamp field!")
         return None, None
