@@ -192,13 +192,21 @@ def check_all_restrictions(type_name,
 notification_restrictions = NotificationChecker()
 
 
-def create_initial_notification_info():
+def create_initial_notification_info(deaviated_param):
     sent_time = int(time.time())
     return {
-        "temperature_sent_time": sent_time,
-        "humidity_sent_time": sent_time,
-        "light_sent_time": sent_time,
-        "watering_sent_time": sent_time
+        "temperature_sent_time": sent_time if deaviated_param[
+            "temperature"
+        ] is not None else None,
+        "humidity_sent_time": sent_time if deaviated_param[
+            "humidity"
+        ] is not None else None,
+        "light_sent_time": sent_time if deaviated_param[
+            "light"
+        ] is not None else None,
+        "watering_sent_time": sent_time if deaviated_param[
+            "watering"
+        ] is not None else None
     }
 
 
@@ -226,14 +234,16 @@ def is_ready_to_notify(last_notifications, error, id_plant, measurement):
     last_notification, info_last_notification = last_notifications.\
         get(id_plant, (None, None))
 
+    deviated_param = error.parameters.dict()
+
     if last_notification is None or info_last_notification is None:
         last_notifications[id_plant] = (measurement,
-                                        create_initial_notification_info())
+                                        create_initial_notification_info(
+                                            deviated_param
+                                        ))
         logger.info("No previous notification has been found. First "
                     f"notification. Ready to notify for plant '{id_plant}'")
         return True
-
-    deviated_param = error.parameters.dict()
 
     results = {
         "temperature":
