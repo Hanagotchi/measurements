@@ -136,6 +136,5 @@ def apply_humidity_rule(rule, register):
 
 
 def is_daytime():
-    return True
     now = datetime.now()
     return 6 <= now.hour <= 18
