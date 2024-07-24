@@ -1,7 +1,7 @@
 from typing import Literal, Optional
 import pandas as pd
 from datetime import datetime
-from app.schemas.measurement import DeviatedParametersSchema, Measurement
+from schemas.measurement import DeviatedParametersSchema, Measurement
 
 try:
     df = pd.read_csv('resources/plants_dataset.csv')
