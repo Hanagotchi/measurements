@@ -71,7 +71,7 @@ WATERING_RULES_MAP = {
 
 def parse_values(string):
     values = string.split('-')
-    return [int(value) for value in values]
+    return list(range(int(values[0]), int(values[-1])+1))
 
 
 def eval_deviation(

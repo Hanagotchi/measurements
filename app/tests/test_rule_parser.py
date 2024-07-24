@@ -1,6 +1,6 @@
 import unittest
 
-from app.resources.rule_parser import LIGHT_RULES_MAP, apply_light_rule, apply_temperature_rule, check_l_rule, check_t_rule, eval_deviation, is_daytime, is_deviated, DELTA
+from app.resources.rule_parser import LIGHT_RULES_MAP, apply_light_rule, apply_temperature_rule, check_l_rule, check_t_rule, eval_deviation, is_daytime, is_deviated, DELTA, parse_values
 
 class ServiceTests(unittest.TestCase):
     
@@ -81,6 +81,15 @@ class ServiceTests(unittest.TestCase):
         self.assertEqual(apply_light_rule(3, 300), "higher")
         self.assertEqual(apply_light_rule(2, 2000), "higher")
         self.assertEqual(apply_light_rule(1, 11000), "higher")
+    
+    def test_parse_values_with_one_element(self):
+        self.assertEqual(parse_values("1"), [1])
+    
+    def test_parse_values_with_two_elements(self):
+        self.assertEqual(parse_values("1-2"), [1, 2])
+        
+    def test_parse_values_with_three_elements(self):
+        self.assertEqual(parse_values("1-3"), [1, 2, 3])
     
     def test_eval_multiple_light_rules(self):
         
