@@ -1,7 +1,7 @@
 from typing import Literal, Optional
 import pandas as pd
 from datetime import datetime
-from schemas.measurement import DeviatedParametersSchema, Measurement
+from app.schemas.measurement import DeviatedParametersSchema, Measurement
 
 try:
     df = pd.read_csv('resources/plants_dataset.csv')
@@ -136,5 +136,6 @@ def apply_humidity_rule(rule, register):
 
 
 def is_daytime():
+    return True
     now = datetime.now()
     return 6 <= now.hour <= 18
